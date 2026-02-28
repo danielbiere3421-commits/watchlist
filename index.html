@@ -1,0 +1,231 @@
+films.html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ma Watchlist</title>
+
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  background:#0f0f0f;
+  color:white;
+  overflow:hidden;
+}
+
+#topbar{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:rgba(0,0,0,0.85);
+  padding:10px;
+  backdrop-filter:blur(10px);
+  z-index:10;
+}
+
+input{
+  width:65%;
+  padding:12px;
+  border-radius:25px;
+  border:none;
+  font-size:16px;
+}
+
+button{
+  padding:12px 16px;
+  border:none;
+  border-radius:25px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.search-btn{ background:#1db954; color:white; }
+.results{
+  display:flex;
+  overflow-x:auto;
+  margin-top:10px;
+}
+
+.results img{
+  height:120px;
+  border-radius:10px;
+  margin-right:10px;
+  cursor:pointer;
+}
+
+#viewer{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#viewer img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.overlay{
+  position:fixed;
+  bottom:20px;
+  width:100%;
+  text-align:center;
+}
+
+.controls{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+
+.control-btn{
+  background:rgba(0,0,0,0.6);
+  color:white;
+  font-size:18px;
+  padding:14px;
+  border-radius:50%;
+}
+
+.watched{
+  position:fixed;
+  top:70px;
+  right:15px;
+  background:#1db954;
+  padding:8px 14px;
+  border-radius:20px;
+  font-size:14px;
+}
+
+.not-watched{
+  position:fixed;
+  top:70px;
+  right:15px;
+  background:#e50914;
+  padding:8px 14px;
+  border-radius:20px;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="topbar">
+  <input id="title" placeholder="Ajouter un film...">
+  <button class="search-btn" onclick="searchMovie()">+</button>
+  <div class="results" id="results"></div>
+</div>
+
+<div id="viewer"></div>
+<div id="status"></div>
+
+<div class="overlay">
+  <div class="controls">
+    <button class="control-btn" onclick="prev()">◀</button>
+    <button class="control-btn" onclick="toggleWatched()">✓</button>
+    <button class="control-btn" onclick="removeMovie()">🗑</button>
+    <button class="control-btn" onclick="next()">▶</button>
+  </div>
+</div>
+
+<script>
+const apiKey = "410d347b";
+let movies = JSON.parse(localStorage.getItem("movies")) || [];
+let currentIndex = 0;
+let startX = 0;
+
+async function searchMovie(){
+  const title = document.getElementById("title").value;
+  const res = await fetch(`https://www.omdbapi.com/?s=${title}&apikey=${apiKey}`);
+  const data = await res.json();
+
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "";
+
+  if(data.Search){
+    data.Search.forEach(movie=>{
+      if(movie.Poster !== "N/A"){
+        const img = document.createElement("img");
+        img.src = movie.Poster;
+        img.onclick = ()=>addMovie(movie);
+        resultsDiv.appendChild(img);
+      }
+    });
+  }
+}
+
+function addMovie(movie){
+  movie.watched = false;
+  movies.push(movie);
+  save();
+  render();
+}
+
+function render(){
+  if(movies.length === 0){
+    document.getElementById("viewer").innerHTML = "";
+    document.getElementById("status").innerHTML = "";
+    return;
+  }
+
+  const movie = movies[currentIndex];
+  document.getElementById("viewer").innerHTML =
+    `<img src="${movie.Poster}">`;
+
+  document.getElementById("status").innerHTML =
+    movie.watched
+      ? `<div class="watched">VU</div>`
+      : `<div class="not-watched">À VOIR</div>`;
+}
+
+function toggleWatched(){
+  if(movies.length === 0) return;
+  movies[currentIndex].watched = !movies[currentIndex].watched;
+  save();
+  render();
+}
+
+function next(){
+  if(movies.length === 0) return;
+  currentIndex = (currentIndex + 1) % movies.length;
+  render();
+}
+
+function prev(){
+  if(movies.length === 0) return;
+  currentIndex = (currentIndex - 1 + movies.length) % movies.length;
+  render();
+}
+
+function removeMovie(){
+  movies.splice(currentIndex,1);
+  currentIndex = 0;
+  save();
+  render();
+}
+
+function save(){
+  localStorage.setItem("movies", JSON.stringify(movies));
+}
+
+/* Swipe mobile */
+document.addEventListener("touchstart", e=>{
+  startX = e.touches[0].clientX;
+});
+
+document.addEventListener("touchend", e=>{
+  let endX = e.changedTouches[0].clientX;
+  if(endX - startX > 50) prev();
+  if(startX - endX > 50) next();
+});
+
+render();
+</script>
+
+</body>
+</html>
