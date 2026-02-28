@@ -14,6 +14,7 @@ body{
   overflow:hidden;
 }
 
+/* TOP BAR */
 #topbar{
   position:fixed;
   top:0;
@@ -53,13 +54,9 @@ button{
   border-radius:12px;
   margin-right:10px;
   cursor:pointer;
-  transition:transform 0.2s;
 }
 
-.results img:hover{
-  transform:scale(1.05);
-}
-
+/* VIEWER */
 #viewer{
   position:relative;
   width:100vw;
@@ -72,9 +69,16 @@ button{
   width:100%;
   height:100%;
   object-fit:cover;
-  transition:transform 0.4s ease, opacity 0.4s ease;
+  transition:opacity 0.4s ease;
 }
 
+/* BLUR EFFECT */
+.blur-background{
+  filter:blur(10px);
+  transition:filter 0.4s ease;
+}
+
+/* CONTROLS */
 .overlay{
   position:fixed;
   bottom:20px;
@@ -112,60 +116,30 @@ button{
 /* DELORAN */
 .delorean{
   position:fixed;
-  top:-250px;
+  top:-200px;
   left:50%;
   transform:translateX(-50%);
-  width:150px;
+  width:160px;
   z-index:9998;
   transition:top 1.2s cubic-bezier(.17,.67,.83,.67);
   cursor:pointer;
 }
 
-.fire{
-  position:fixed;
-  bottom:0;
-  width:20px;
-  height:120px;
-  background:linear-gradient(to top, orange, yellow, transparent);
-  animation:flame 0.3s infinite alternate;
-  z-index:9997;
-}
-
-@keyframes flame{
-  from{height:100px;}
-  to{height:140px;}
-}
-
-.flash{
+/* MESSAGE */
+.message-overlay{
   position:fixed;
   inset:0;
-  background:white;
-  opacity:0;
-  animation:flashAnim 0.4s ease;
-  z-index:9996;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:10000;
 }
 
-@keyframes flashAnim{
-  0%{opacity:0;}
-  50%{opacity:0.8;}
-  100%{opacity:0;}
-}
-
-.blur{
-  filter:blur(8px);
-  transition:filter 0.4s ease;
-}
-
-.message{
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background:rgba(0,0,0,0.9);
+.message-box{
+  background:rgba(0,0,0,0.85);
   padding:30px 40px;
   border-radius:20px;
   font-size:22px;
-  z-index:10000;
   cursor:pointer;
 }
 </style>
@@ -197,6 +171,7 @@ let movies = JSON.parse(localStorage.getItem("movies")) || [];
 let currentIndex = 0;
 let startX = 0;
 
+/* SEARCH */
 async function searchMovie(){
   const title = document.getElementById("title").value;
   const res = await fetch(`https://www.omdbapi.com/?s=${title}&apikey=${apiKey}`);
@@ -224,6 +199,7 @@ function addMovie(movie){
   render();
 }
 
+/* RENDER */
 function render(){
   if(!movies.length){
     document.getElementById("viewer").innerHTML="";
@@ -247,6 +223,7 @@ function render(){
   checkBackToFuture();
 }
 
+/* CONTROLS */
 function toggleWatched(){
   if(!movies.length) return;
   movies[currentIndex].watched=!movies[currentIndex].watched;
@@ -289,7 +266,6 @@ document.addEventListener("touchend",e=>{
 });
 
 /* EASTER EGG */
-
 function checkBackToFuture(){
   const movie=movies[currentIndex];
   if(movie.Title.toLowerCase().includes("retour vers le futur")){
@@ -307,51 +283,28 @@ function launchDelorean(){
 
   setTimeout(()=>{car.style.top="65vh";},50);
 
-  setTimeout(()=>{createFire();},800);
-
   car.onclick=()=>{
-    showFlash();
-    activateMessage();
+    showMessage();
     car.remove();
-    removeFire();
   };
 }
 
-function createFire(){
-  const left=document.createElement("div");
-  left.className="fire";
-  left.style.left="45%";
+function showMessage(){
+  document.getElementById("viewer").classList.add("blur-background");
 
-  const right=document.createElement("div");
-  right.className="fire";
-  right.style.left="55%";
+  const overlay=document.createElement("div");
+  overlay.className="message-overlay";
 
-  document.body.appendChild(left);
-  document.body.appendChild(right);
-}
+  const box=document.createElement("div");
+  box.className="message-box";
+  box.innerText="Tu as très bon goût";
 
-function removeFire(){
-  document.querySelectorAll(".fire").forEach(f=>f.remove());
-}
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
 
-function showFlash(){
-  const flash=document.createElement("div");
-  flash.className="flash";
-  document.body.appendChild(flash);
-  setTimeout(()=>flash.remove(),400);
-}
-
-function activateMessage(){
-  document.body.classList.add("blur");
-
-  const msg=document.createElement("div");
-  msg.className="message";
-  msg.innerText="Tu as très bon goût";
-  document.body.appendChild(msg);
-
-  msg.onclick=()=>{
-    document.body.classList.remove("blur");
-    msg.remove();
+  box.onclick=()=>{
+    document.getElementById("viewer").classList.remove("blur-background");
+    overlay.remove();
   };
 }
 
