@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma Watchlist 3D</title>
+<title>Ma Watchlist 3D Réaliste</title>
 
 <style>
 body {
@@ -12,7 +12,7 @@ body {
   background: #0d0d0d;
   color: white;
   overflow: hidden;
-  perspective: 1000px; /* Nécessaire pour l'effet 3D globale */
+  perspective: 1200px; /* Accentue l'effet de perspective 3D */
 }
 
 /* TOP BAR */
@@ -61,7 +61,7 @@ button {
 }
 .results img:hover { transform: scale(1.05); }
 
-/* TITRE DU FILM ACTUEL */
+/* TITRE DU FILM */
 #movie-title {
   position: fixed;
   top: 140px;
@@ -75,7 +75,7 @@ button {
   text-shadow: 0 2px 10px rgba(0,0,0,0.8);
 }
 
-/* CAROUSEL & VIEWER 3D */
+/* CAROUSEL & VIEWER */
 #viewer {
   display: flex;
   justify-content: center;
@@ -85,73 +85,114 @@ button {
   position: relative;
 }
 
-/* Conteneur d'un boîtier DVD */
+/* Positionnement des conteneurs */
 .dvd-container {
   position: absolute;
   width: 220px;
   height: 310px;
-  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
   transform-style: preserve-3d;
   opacity: 0;
   visibility: hidden;
 }
 
-/* ÉTATS DU CAROUSEL (Centre, Gauche, Droite) */
+/* DVD Actif au centre avec animation 360° */
 .dvd-container.active {
   opacity: 1;
   visibility: visible;
-  transform: translate3d(0, 20px, 0) rotateY(-15deg); /* Légère rotation 3D style jaquette */
+  transform: translate3d(0, 20px, 0);
   z-index: 5;
 }
 
+.dvd-container.active .dvd-box {
+  animation: spin3D 12s linear infinite; /* Animation de rotation infinie à 360° */
+}
+
+/* Survol pour mettre l'animation en pause si on veut l'observer */
+.dvd-container.active:hover .dvd-box {
+  animation-play-state: paused;
+}
+
+/* DVD sur les côtés fixes (sans rotation automatique) */
 .dvd-container.prev-slide {
-  opacity: 0.4;
+  opacity: 0.35;
   visibility: visible;
-  transform: translate3d(-280px, 40px, -150px) rotateY(25deg);
+  transform: translate3d(-320px, 40px, -200px) rotateY(35deg);
   z-index: 3;
   cursor: pointer;
 }
 
 .dvd-container.next-slide {
-  opacity: 0.4;
+  opacity: 0.35;
   visibility: visible;
-  transform: translate3d(280px, 40px, -150px) rotateY(-45deg);
+  transform: translate3d(320px, 40px, -200px) rotateY(-35deg);
   z-index: 3;
   cursor: pointer;
 }
 
-/* L'OBJET DVD 3D (Tranche + Boitier) */
+/* STRUCTURE DU BOÎTIER EN VRAIE 3D (Épaisseur de 16px) */
 .dvd-box {
   width: 100%;
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  box-shadow: 10px 15px 30px rgba(0, 0, 0, 0.7);
-  border-radius: 4px;
 }
 
-/* Face avant (La jaquette du film) */
-.dvd-cover {
+/* Propriétés communes aux faces */
+.dvd-face {
   position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+/* Face Avant (Jaquette) */
+.dvd-front {
+  width: 100%;
+  transform: translateZ(8px); /* Poussée vers l'avant de la moitié de l'épaisseur */
+}
+.dvd-front img {
   width: 100%;
   height: 100%;
-  border-radius: 4px;
   object-fit: cover;
-  z-index: 2;
-  backface-visibility: hidden;
+  border-radius: 4px;
 }
 
-/* Tranche imprimée du DVD pour l'effet d'épaisseur 3D */
-.dvd-side {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 15px; /* Épaisseur du boîtier */
+/* Face Arrière (Dos du boîtier) */
+.dvd-back {
+  width: 100%;
+  transform: rotateY(180deg) translateZ(8px);
+}
+.dvd-back img {
+  width: 100%;
   height: 100%;
-  background: #111;
-  transform: rotateY(-90deg);
-  transform-origin: left;
-  box-shadow: inset -2px 0 5px rgba(0,0,0,0.8);
+  object-fit: cover;
+  filter: brightness(0.5) contrast(1.2); /* Simule l'arrière plus sombre / plastique transparent */
+  border-radius: 4px;
+}
+
+/* Tranche Gauche */
+.dvd-spine-left {
+  width: 16px; /* Épaisseur exacte */
+  background: #151515;
+  transform: rotateY(-90deg) translateZ(8px);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+/* Tranche Droite (Ouverture en plastique transparent) */
+.dvd-spine-right {
+  width: 16px;
+  background: rgba(200, 200, 200, 0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(2px);
+  transform: rotateY(90deg) translateZ(212px); /* Largeur du boîtier (220) - moitié épaisseur (8) */
+}
+
+/* ANIMATION ROTATION 360 DEGRÉS */
+@keyframes spin3D {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
 }
 
 /* CONTROLS & STATUS */
@@ -177,7 +218,7 @@ button {
   padding: 16px;
   border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.2);
-  transition: background 0.2s;
+  cursor: pointer;
 }
 .control-btn:hover { background: rgba(255, 255, 255, 0.25); }
 
@@ -191,7 +232,6 @@ button {
   font-weight: bold;
   z-index: 50;
 }
-
 .watched { background: #1db954; }
 .not-watched { background: #e50914; }
 </style>
@@ -225,13 +265,11 @@ let movies = JSON.parse(localStorage.getItem("movies")) || [];
 let currentIndex = 0;
 let startX = 0;
 
-/* FORCE HD POSTER */
 function getHDPoster(url) {
   if (!url || url === "N/A") return url;
   return url.replace(/@@\._V1_SX\d+\.jpg$/, "@@._V1_.jpg").replace("SX300", "SX1000");
 }
 
-/* SEARCH */
 async function searchMovie() {
   const title = document.getElementById("title").value;
   const res = await fetch(`https://www.omdbapi.com/?s=${title}&apikey=${apiKey}`);
@@ -259,7 +297,6 @@ function addMovie(movie){
   render();
 }
 
-/* RENDER AVEC CAROUSEL 3D ET BONUS SUR LES CÔTÉS */
 function render(){
   const viewer = document.getElementById("viewer");
   const titleDiv = document.getElementById("movie-title");
@@ -271,42 +308,43 @@ function render(){
 
   if(!movies.length) return;
 
-  // Mise à jour du titre principal (haut)
   titleDiv.innerText = movies[currentIndex].Title;
 
-  // Statut VU / À VOIR
   statusDiv.innerHTML = `
     <div class="status ${movies[currentIndex].watched ? "watched" : "not-watched"}">
       ${movies[currentIndex].watched ? "VU" : "À VOIR"}
     </div>`;
 
-  // Construction des index pour le DVD précédent et suivant
   const prevIndex = (currentIndex - 1 + movies.length) % movies.length;
   const nextIndex = (currentIndex + 1) % movies.length;
 
   movies.forEach((movie, index) => {
-    // On affiche uniquement le central et ses deux voisins directs pour optimiser
     if (index === currentIndex || index === prevIndex || index === nextIndex || movies.length <= 3) {
       
       const container = document.createElement("div");
       container.className = "dvd-container";
       
-      // Assigner la bonne classe de position 3D
       if (index === currentIndex) {
         container.classList.add("active");
       } else if (index === prevIndex && movies.length > 1) {
         container.classList.add("prev-slide");
-        container.onclick = prev; // Clic sur le DVD de gauche pour reculer
+        container.onclick = prev;
       } else if (index === nextIndex && movies.length > 1) {
         container.classList.add("next-slide");
-        container.onclick = next; // Clic sur le DVD de droite pour avancer
+        container.onclick = next;
       }
 
-      // Structure HTML du boîtier DVD en relief
+      // Construction de la boîte en vraie 3D géométrique multi-face
       container.innerHTML = `
         <div class="dvd-box">
-          <div class="dvd-side"></div>
-          <img src="${movie.Poster}" class="dvd-cover" alt="Cover">
+          <div class="dvd-face dvd-front">
+            <img src="${movie.Poster}" alt="Front">
+          </div>
+          <div class="dvd-face dvd-back">
+            <img src="${movie.Poster}" alt="Back">
+          </div>
+          <div class="dvd-face dvd-spine-left"></div>
+          <div class="dvd-face dvd-spine-right"></div>
         </div>
       `;
       
@@ -315,7 +353,6 @@ function render(){
   });
 }
 
-/* CONTROLS */
 function toggleWatched(){
   if(!movies.length) return;
   movies[currentIndex].watched=!movies[currentIndex].watched;
@@ -347,7 +384,6 @@ function save(){
   localStorage.setItem("movies",JSON.stringify(movies));
 }
 
-/* SWIPE */
 document.addEventListener("touchstart",e=>{
   startX=e.touches[0].clientX;
 });
@@ -358,7 +394,6 @@ document.addEventListener("touchend",e=>{
   if(startX-endX>50) next();
 });
 
-// Initialisation au chargement
 render();
 </script>
 
