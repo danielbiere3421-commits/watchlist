@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma Watchlist DVD 3D Pro</title>
+<title>Ma Watchlist DVD 3D Parfaite</title>
 
 <style>
 body {
@@ -73,7 +73,7 @@ button {
   z-index: 10;
 }
 
-/* CONFIGURATION DU SPECTACLE 3D */
+/* CAROUSEL CONTENEUR */
 #viewer {
   display: flex;
   justify-content: center;
@@ -100,16 +100,16 @@ button {
   z-index: 5;
 }
 
-/* Animation de rotation fluide à 360° comme sur ta vidéo */
+/* Animation de rotation à 360° forcée */
 .dvd-container.active .dvd-box {
-  animation: spin3D 14s linear infinite;
+  animation: spin3D 12s linear infinite;
 }
 
 .dvd-container.active:hover .dvd-box {
   animation-play-state: paused;
 }
 
-/* Aperçus sur les côtés */
+/* DVD sur les côtés */
 .dvd-container.prev-slide {
   opacity: 0.25;
   visibility: visible;
@@ -126,7 +126,7 @@ button {
   cursor: pointer;
 }
 
-/* BOÎTIER DVD DOUBLE-FACE + TRANCHE */
+/* STRUCTURE DU BOÎTIER DVD REEL */
 .dvd-box {
   width: 100%;
   height: 100%;
@@ -139,17 +139,15 @@ button {
   top: 0;
   left: 0;
   height: 100%;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+  box-sizing: border-box;
 }
 
-/* Face Avant (Jaquette HD) */
+/* FACE AVANT (Jaquette HD principale) */
 .dvd-front {
   width: 100%;
-  transform: translateZ(11px); /* Épaisseur du boîtier divisée par 2 */
-  border-radius: 0 4px 4px 0;
+  transform: translateZ(10px); /* Moitié de l'épaisseur totale (20px) */
+  backface-visibility: hidden;
 }
 .dvd-front img {
   width: 100%;
@@ -158,51 +156,71 @@ button {
   border-radius: 0 4px 4px 0;
 }
 
-/* Face Arrière (Le dos officiel de la jaquette avec synopsis) */
+/* VRAIE FACE ARRIÈRE GÉNÉRÉE (Fini le flou, design propre style dos de DVD) */
 .dvd-back {
   width: 100%;
-  transform: rotateY(180deg) translateZ(11px);
-  background-color: #1a1a1a;
+  transform: rotateY(180deg) translateZ(10px);
+  background: #141414;
+  border: 4px solid #1a1a1a;
   border-radius: 4px 0 0 4px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-.dvd-back img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px 0 0 4px;
+.dvd-back-header {
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 1px solid #333;
+  padding-bottom: 5px;
+  color: #1db954;
+}
+.dvd-back-body {
+  font-size: 10px;
+  color: #aaa;
+  line-height: 1.4;
+  text-align: justify;
+}
+.dvd-back-footer {
+  font-size: 8px;
+  color: #555;
+  text-align: center;
+  border-top: 1px solid #222;
+  padding-top: 5px;
+  letter-spacing: 1px;
 }
 
-/* Côté du DVD : La Tranche (Spine) */
+/* TRANCHE DU DVD (Le Côté) */
 .dvd-spine-left {
-  width: 22px; /* Largeur exacte de l'épaisseur */
-  transform: rotateY(-90deg) translateZ(11px);
+  width: 20px; /* Épaisseur du boîtier */
+  height: 100%;
+  transform: rotateY(-90deg) translateZ(10px);
   background: #111;
-  border-left: 1px solid rgba(255,255,255,0.05);
-  border-right: 1px solid rgba(255,255,255,0.05);
+  border-left: 1px solid rgba(255,255,255,0.1);
+  border-right: 1px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
 }
-
-/* Texte imprimé sur le côté du DVD */
 .dvd-spine-text {
-  color: #e0e0e0;
-  font-size: 11px;
-  font-weight: 600;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
   text-transform: uppercase;
   white-space: nowrap;
   transform: rotate(90deg);
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   width: 280px;
   text-align: center;
 }
 
-/* Côté droit (Ouverture du boîtier plastique noir ou transparent) */
+/* CÔTÉ DROIT (Plastique noir d'ouverture) */
 .dvd-spine-right {
-  width: 22px;
-  background: linear-gradient(90deg, #151515 0%, #333 40%, #222 60%, #111 100%);
-  transform: rotateY(90deg) translateZ(209px); /* Largeur totale - moitié épaisseur */
+  width: 20px;
+  background: linear-gradient(90deg, #151515 0%, #2a2a2a 40%, #1a1a1a 60%, #0d0d0d 100%);
+  transform: rotateY(90deg) translateZ(210px);
 }
 
 @keyframes spin3D {
@@ -210,7 +228,7 @@ button {
   100% { transform: rotateY(360deg); }
 }
 
-/* CONTROLS */
+/* CONTROLS & UTILS */
 .overlay {
   position: fixed;
   bottom: 30px;
@@ -278,12 +296,6 @@ let movies = JSON.parse(localStorage.getItem("movies")) || [];
 let currentIndex = 0;
 let startX = 0;
 
-/* LIENS DIRECTS DE RECHANGE VERS LES DOS DE JAQUETTES (Exemple) */
-// Tu peux ajouter ici les images arrière trouvées sur dvdcover.com pour tes films favoris.
-const backCoversDB = {
-  "tt0088763": "https://images.squarespace-cdn.com/content/v1/5c5a08aa697a98c8af34eb3b/1554907954124-7C7I0A6Z5W3O0RQLF1D1/BTTF_Back.jpg"
-};
-
 function getHDPoster(url) {
   if (!url || url === "N/A") return url;
   return url.replace(/@@\._V1_SX\d+\.jpg$/, "@@._V1_.jpg").replace("SX300", "SX1000");
@@ -311,10 +323,6 @@ async function searchMovie() {
 function addMovie(movie){
   movie.Poster = getHDPoster(movie.Poster);
   movie.watched = false;
-  
-  // Assigner l'arrière s'il existe dans notre base, sinon mettre un fond de boîte générique propre
-  movie.Back = backCoversDB[movie.imdbID] || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&q=80"; 
-  
   movies.push(movie);
   save();
   render();
@@ -347,14 +355,20 @@ function render(){
       else if (index === prevIndex && movies.length > 1) { container.classList.add("prev-slide"); container.onclick = prev; }
       else if (index === nextIndex && movies.length > 1) { container.classList.add("next-slide"); container.onclick = next; }
 
-      // Construction sans aucun flou (Images nettes + Texte propre sur le côté)
+      // HTML structure forcée : Face avant nette, Vrai dos généré propre, Vrai côté texturé
       container.innerHTML = `
         <div class="dvd-box">
           <div class="dvd-face dvd-front">
             <img src="${movie.Poster}" alt="Front">
           </div>
           <div class="dvd-face dvd-back">
-            <img src="${movie.Back}" alt="Back">
+            <div class="dvd-back-header">Synopsis & Spécifications</div>
+            <div class="dvd-back-body">
+              Découvrez l'aventure extraordinaire de ce chef-d'œuvre cinématographique mondialement acclamé : "${movie.Title}". Retrouvez les acteurs phares et des scènes d'anthologie dans cette édition collector exclusive en haute définition.
+            </div>
+            <div class="dvd-back-footer">
+              DOLBY DIGITAL - DVD VIDEO - PAL - REGION 2 - COMPATIBLE 16:9
+            </div>
           </div>
           <div class="dvd-face dvd-spine-left">
             <div class="dvd-spine-text">${movie.Title}</div>
