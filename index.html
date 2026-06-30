@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma Watchlist 3D Réaliste</title>
+<title>Ma Watchlist 3D 100% Automatique</title>
 
 <style>
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-  background: #0d0d0d;
+  background: #0a0a0a;
   color: white;
   overflow: hidden;
-  perspective: 1200px; /* Accentue l'effet de perspective 3D */
+  perspective: 1500px;
 }
 
 /* TOP BAR */
@@ -57,11 +57,9 @@ button {
   border-radius: 8px;
   margin-right: 10px;
   cursor: pointer;
-  transition: transform 0.2s;
 }
-.results img:hover { transform: scale(1.05); }
 
-/* TITRE DU FILM */
+/* TITRE */
 #movie-title {
   position: fixed;
   top: 140px;
@@ -72,10 +70,10 @@ button {
   text-transform: uppercase;
   letter-spacing: 2px;
   z-index: 10;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
 }
 
-/* CAROUSEL & VIEWER */
+/* VIEWER */
 #viewer {
   display: flex;
   justify-content: center;
@@ -85,7 +83,6 @@ button {
   position: relative;
 }
 
-/* Positionnement des conteneurs */
 .dvd-container {
   position: absolute;
   width: 220px;
@@ -96,7 +93,6 @@ button {
   visibility: hidden;
 }
 
-/* DVD Actif au centre avec animation 360° */
 .dvd-container.active {
   opacity: 1;
   visibility: visible;
@@ -105,32 +101,30 @@ button {
 }
 
 .dvd-container.active .dvd-box {
-  animation: spin3D 12s linear infinite; /* Animation de rotation infinie à 360° */
+  animation: spin3D 15s linear infinite;
 }
 
-/* Survol pour mettre l'animation en pause si on veut l'observer */
 .dvd-container.active:hover .dvd-box {
   animation-play-state: paused;
 }
 
-/* DVD sur les côtés fixes (sans rotation automatique) */
 .dvd-container.prev-slide {
-  opacity: 0.35;
+  opacity: 0.3;
   visibility: visible;
-  transform: translate3d(-320px, 40px, -200px) rotateY(35deg);
+  transform: translate3d(-340px, 40px, -250px) rotateY(40deg);
   z-index: 3;
   cursor: pointer;
 }
 
 .dvd-container.next-slide {
-  opacity: 0.35;
+  opacity: 0.3;
   visibility: visible;
-  transform: translate3d(320px, 40px, -200px) rotateY(-35deg);
+  transform: translate3d(340px, 40px, -250px) rotateY(-40deg);
   z-index: 3;
   cursor: pointer;
 }
 
-/* STRUCTURE DU BOÎTIER EN VRAIE 3D (Épaisseur de 16px) */
+/* STRUCTURE CUBE 3D */
 .dvd-box {
   width: 100%;
   height: 100%;
@@ -138,105 +132,79 @@ button {
   transform-style: preserve-3d;
 }
 
-/* Propriétés communes aux faces */
 .dvd-face {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
-  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
-/* Face Avant (Jaquette) */
-.dvd-front {
+/* Si la jaquette complète (Full Cover) est chargée */
+.full-cover .dvd-front {
   width: 100%;
-  transform: translateZ(8px); /* Poussée vers l'avant de la moitié de l'épaisseur */
-}
-.dvd-front img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 4px;
+  transform: translateZ(10px);
+  background-position: 99% center; /* Ajustement fin pour l'avant */
+  border-radius: 0 4px 4px 0;
 }
 
-/* Face Arrière (Dos du boîtier) */
-.dvd-back {
+.full-cover .dvd-back {
   width: 100%;
-  transform: rotateY(180deg) translateZ(8px);
-}
-.dvd-back img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.5) contrast(1.2); /* Simule l'arrière plus sombre / plastique transparent */
-  border-radius: 4px;
+  transform: rotateY(180deg) translateZ(10px);
+  background-position: 1% center; /* Ajustement fin pour l'arrière */
+  border-radius: 4px 0 0 4px;
 }
 
-/* Tranche Gauche */
-.dvd-spine-left {
-  width: 16px; /* Épaisseur exacte */
+.full-cover .dvd-spine-left {
+  width: 20px;
+  transform: rotateY(-90deg) translateZ(10px);
+  background-position: 50% center; /* La tranche au milieu */
+}
+
+/* Si on utilise l'affiche simple d'OMDb (Fallback) */
+.fallback-cover .dvd-front {
+  width: 100%;
+  transform: translateZ(10px);
+}
+.fallback-cover .dvd-front img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+
+.fallback-cover .dvd-back {
+  width: 100%;
+  transform: rotateY(180deg) translateZ(10px);
   background: #151515;
-  transform: rotateY(-90deg) translateZ(8px);
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
 }
+.fallback-cover .dvd-back img { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); filter: blur(2px) brightness(0.3); }
 
-/* Tranche Droite (Ouverture en plastique transparent) */
+.fallback-cover .dvd-spine-left {
+  width: 20px;
+  background: linear-gradient(90deg, #111, #333, #111);
+  transform: rotateY(-90deg) translateZ(10px);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.fallback-cover .dvd-spine-text { color: #aaa; font-size: 10px; font-weight: bold; text-transform: uppercase; transform: rotate(90deg); white-space: nowrap; width: 280px; text-align: center; }
+
 .dvd-spine-right {
-  width: 16px;
-  background: rgba(200, 200, 200, 0.2);
-  border: 1px solid rgba(255,255,255,0.1);
-  backdrop-filter: blur(2px);
-  transform: rotateY(90deg) translateZ(212px); /* Largeur du boîtier (220) - moitié épaisseur (8) */
+  width: 20px;
+  background: linear-gradient(90deg, #222, #444 30%, #111 80%);
+  transform: rotateY(90deg) translateZ(210px);
 }
 
-/* ANIMATION ROTATION 360 DEGRÉS */
 @keyframes spin3D {
   0% { transform: rotateY(0deg); }
   100% { transform: rotateY(360deg); }
 }
 
-/* CONTROLS & STATUS */
-.overlay {
-  position: fixed;
-  bottom: 30px;
-  width: 100%;
-  text-align: center;
-  z-index: 50;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-.control-btn {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(5px);
-  color: white;
-  font-size: 18px;
-  padding: 16px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
-  cursor: pointer;
-}
-.control-btn:hover { background: rgba(255, 255, 255, 0.25); }
-
-.status {
-  position: fixed;
-  top: 75px;
-  right: 15px;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: bold;
-  z-index: 50;
-}
+/* CONTROLS */
+.overlay { position: fixed; bottom: 30px; width: 100%; text-align: center; z-index: 50; }
+.controls { display: flex; justify-content: center; gap: 15px; }
+.control-btn { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); color: white; font-size: 18px; padding: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
+.status { position: fixed; top: 75px; right: 15px; padding: 8px 14px; border-radius: 20px; font-size: 14px; font-weight: bold; z-index: 50; }
 .watched { background: #1db954; }
 .not-watched { background: #e50914; }
 </style>
 </head>
-
 <body>
 
 <div id="topbar">
@@ -246,7 +214,6 @@ button {
 </div>
 
 <div id="movie-title"></div>
-
 <div id="viewer"></div>
 <div id="status"></div>
 
@@ -270,6 +237,7 @@ function getHDPoster(url) {
   return url.replace(/@@\._V1_SX\d+\.jpg$/, "@@._V1_.jpg").replace("SX300", "SX1000");
 }
 
+/* RECHERCHE INITIALE OMDb */
 async function searchMovie() {
   const title = document.getElementById("title").value;
   const res = await fetch(`https://www.omdbapi.com/?s=${title}&apikey=${apiKey}`);
@@ -289,9 +257,43 @@ async function searchMovie() {
   }
 }
 
-function addMovie(movie){
+/* AUTOMATISATION : Recherche de la jaquette complète à plat via l'ID IMDb */
+async function fetchFullDvdCover(title, imdbID) {
+  try {
+    // Utilisation d'un moteur de recherche public via Proxy CORS pour trouver une jaquette sur dvd-covers ou similaire
+    const query = encodeURIComponent(`${title} ${imdbID} dvd cover full`);
+    const searchUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://html.duckduckgo.com/html/?q=${query}`)}`;
+    
+    const response = await fetch(searchUrl);
+    const data = await response.json();
+    
+    // Analyse basique du HTML retourné pour extraire une image pertinente de jaquette
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data.contents, 'text/html');
+    const images = doc.querySelectorAll('.image_link, img');
+    
+    for (let img of images) {
+      const src = img.src || img.getAttribute('href');
+      // On cherche des images qui contiennent des indices de scans complets (souvent larges et au format JPG)
+      if (src && (src.includes('cover') || src.includes('jaquette')) && !src.includes('amazon')) {
+        // Nettoyage de l'URLDuckDuckGo si nécessaire
+        if(src.startsWith('//')) return 'https:' + src;
+        return src;
+      }
+    }
+  } catch (e) {
+    console.log("Impossible de récupérer automatiquement le scan complet, repli sur l'affiche.");
+  }
+  return null;
+}
+
+async function addMovie(movie){
   movie.Poster = getHDPoster(movie.Poster);
   movie.watched = false;
+  
+  // On tente de trouver la jaquette complète en arrière-plan avant d'ajouter
+  movie.fullCover = await fetchFullDvdCover(movie.Title, movie.imdbID);
+  
   movies.push(movie);
   save();
   render();
@@ -309,11 +311,7 @@ function render(){
   if(!movies.length) return;
 
   titleDiv.innerText = movies[currentIndex].Title;
-
-  statusDiv.innerHTML = `
-    <div class="status ${movies[currentIndex].watched ? "watched" : "not-watched"}">
-      ${movies[currentIndex].watched ? "VU" : "À VOIR"}
-    </div>`;
+  statusDiv.innerHTML = `<div class="status ${movies[currentIndex].watched ? "watched" : "not-watched"}">${movies[currentIndex].watched ? "VU" : "À VOIR"}</div>`;
 
   const prevIndex = (currentIndex - 1 + movies.length) % movies.length;
   const nextIndex = (currentIndex + 1) % movies.length;
@@ -324,78 +322,45 @@ function render(){
       const container = document.createElement("div");
       container.className = "dvd-container";
       
-      if (index === currentIndex) {
-        container.classList.add("active");
-      } else if (index === prevIndex && movies.length > 1) {
-        container.classList.add("prev-slide");
-        container.onclick = prev;
-      } else if (index === nextIndex && movies.length > 1) {
-        container.classList.add("next-slide");
-        container.onclick = next;
-      }
+      if (index === currentIndex) container.classList.add("active");
+      else if (index === prevIndex && movies.length > 1) { container.classList.add("prev-slide"); container.onclick = prev; }
+      else if (index === nextIndex && movies.length > 1) { container.classList.add("next-slide"); container.onclick = next; }
 
-      // Construction de la boîte en vraie 3D géométrique multi-face
-      container.innerHTML = `
-        <div class="dvd-box">
-          <div class="dvd-face dvd-front">
-            <img src="${movie.Poster}" alt="Front">
-          </div>
-          <div class="dvd-face dvd-back">
-            <img src="${movie.Poster}" alt="Back">
-          </div>
-          <div class="dvd-face dvd-spine-left"></div>
-          <div class="dvd-face dvd-spine-right"></div>
-        </div>
-      `;
+      if (movie.fullCover) {
+        // SI LE SCRIPT A TROUVÉ LA JAQUETTE AUTOMATIQUEMENT
+        container.innerHTML = `
+          <div class="dvd-box full-cover">
+            <div class="dvd-face dvd-front" style="background-image: url('${movie.fullCover}');"></div>
+            <div class="dvd-face dvd-back" style="background-image: url('${movie.fullCover}');"></div>
+            <div class="dvd-face dvd-spine-left" style="background-image: url('${movie.fullCover}');"></div>
+            <div class="dvd-face dvd-spine-right"></div>
+          </div>`;
+      } else {
+        // AFFICHE D'ORIGINE AVEC LES EFFETS 3D APPLIQUÉS SI LE SCAN N'EXISTE PAS
+        container.innerHTML = `
+          <div class="dvd-box fallback-cover">
+            <div class="dvd-face dvd-front"><img src="${movie.Poster}"></div>
+            <div class="dvd-face dvd-back"><img src="${movie.Poster}"></div>
+            <div class="dvd-face dvd-spine-left"><div class="fallback-cover dvd-spine-text">${movie.Title}</div></div>
+            <div class="dvd-face dvd-spine-right"></div>
+          </div>`;
+      }
       
       viewer.appendChild(container);
     }
   });
 }
 
-function toggleWatched(){
-  if(!movies.length) return;
-  movies[currentIndex].watched=!movies[currentIndex].watched;
-  save();
-  render();
-}
+function toggleWatched(){ if(!movies.length) return; movies[currentIndex].watched=!movies[currentIndex].watched; save(); render(); }
+function next(){ if(!movies.length) return; currentIndex=(currentIndex+1)%movies.length; render(); }
+function prev(){ if(!movies.length) return; currentIndex=(currentIndex-1+movies.length)%movies.length; render(); }
+function removeMovie(){ if(!movies.length) return; movies.splice(currentIndex,1); currentIndex = 0; save(); render(); }
+function save(){ localStorage.setItem("movies",JSON.stringify(movies)); }
 
-function next(){
-  if(!movies.length) return;
-  currentIndex=(currentIndex+1)%movies.length;
-  render();
-}
-
-function prev(){
-  if(!movies.length) return;
-  currentIndex=(currentIndex-1+movies.length)%movies.length;
-  render();
-}
-
-function removeMovie(){
-  if(!movies.length) return;
-  movies.splice(currentIndex,1);
-  currentIndex = 0;
-  save();
-  render();
-}
-
-function save(){
-  localStorage.setItem("movies",JSON.stringify(movies));
-}
-
-document.addEventListener("touchstart",e=>{
-  startX=e.touches[0].clientX;
-});
-
-document.addEventListener("touchend",e=>{
-  let endX=e.changedTouches[0].clientX;
-  if(endX-startX>50) prev();
-  if(startX-endX>50) next();
-});
+document.addEventListener("touchstart",e=>{ startX=e.touches[0].clientX; });
+document.addEventListener("touchend",e=>{ let endX=e.changedTouches[0].clientX; if(endX-startX>50) prev(); if(startX-endX>50) next(); });
 
 render();
 </script>
-
 </body>
 </html>
