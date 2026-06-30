@@ -1,147 +1,199 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma Watchlist</title>
+<title>Ma Watchlist 3D</title>
 
 <style>
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-  background:#000;
-  color:white;
-  overflow:hidden;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+  background: #0d0d0d;
+  color: white;
+  overflow: hidden;
+  perspective: 1000px; /* Nécessaire pour l'effet 3D globale */
 }
 
 /* TOP BAR */
-#topbar{
-  position:fixed;
-  top:0;
-  width:100%;
-  background:rgba(0,0,0,0.85);
-  padding:12px;
-  backdrop-filter:blur(12px);
-  z-index:10;
+#topbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 12px;
+  backdrop-filter: blur(12px);
+  z-index: 100;
 }
 
-input{
-  width:65%;
-  padding:12px;
-  border-radius:25px;
-  border:none;
-  font-size:16px;
+input {
+  width: 65%;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+  font-size: 16px;
+  background: #222;
+  color: white;
 }
 
-button{
-  padding:12px 16px;
-  border:none;
-  border-radius:25px;
-  font-size:14px;
-  cursor:pointer;
+button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-.search-btn{ background:#1db954; color:white; }
+.search-btn { background: #1db954; color: white; }
 
-.results{
-  display:flex;
-  overflow-x:auto;
-  margin-top:10px;
+.results {
+  display: flex;
+  overflow-x: auto;
+  margin-top: 10px;
 }
 
-.results img{
-  height:130px;
-  border-radius:12px;
-  margin-right:10px;
-  cursor:pointer;
+.results img {
+  height: 130px;
+  border-radius: 8px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.results img:hover { transform: scale(1.05); }
+
+/* TITRE DU FILM ACTUEL */
+#movie-title {
+  position: fixed;
+  top: 140px;
+  width: 100%;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  z-index: 10;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
 }
 
-/* VIEWER */
-#viewer{
-  position:relative;
-  width:100vw;
-  height:100vh;
-  overflow:hidden;
+/* CAROUSEL & VIEWER 3D */
+#viewer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
 }
 
-.poster{
-  position:absolute;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition:opacity 0.4s ease;
+/* Conteneur d'un boîtier DVD */
+.dvd-container {
+  position: absolute;
+  width: 220px;
+  height: 310px;
+  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  transform-style: preserve-3d;
+  opacity: 0;
+  visibility: hidden;
 }
 
-/* BLUR EFFECT */
-.blur-background{
-  filter:blur(10px);
-  transition:filter 0.4s ease;
+/* ÉTATS DU CAROUSEL (Centre, Gauche, Droite) */
+.dvd-container.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, 20px, 0) rotateY(-15deg); /* Légère rotation 3D style jaquette */
+  z-index: 5;
 }
 
-/* CONTROLS */
-.overlay{
-  position:fixed;
-  bottom:20px;
-  width:100%;
-  text-align:center;
+.dvd-container.prev-slide {
+  opacity: 0.4;
+  visibility: visible;
+  transform: translate3d(-280px, 40px, -150px) rotateY(25deg);
+  z-index: 3;
+  cursor: pointer;
 }
 
-.controls{
-  display:flex;
-  justify-content:center;
-  gap:12px;
+.dvd-container.next-slide {
+  opacity: 0.4;
+  visibility: visible;
+  transform: translate3d(280px, 40px, -150px) rotateY(-45deg);
+  z-index: 3;
+  cursor: pointer;
 }
 
-.control-btn{
-  background:rgba(0,0,0,0.6);
-  color:white;
-  font-size:18px;
-  padding:16px;
-  border-radius:50%;
+/* L'OBJET DVD 3D (Tranche + Boitier) */
+.dvd-box {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  box-shadow: 10px 15px 30px rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
 }
 
-.status{
-  position:fixed;
-  top:75px;
-  right:15px;
-  padding:8px 14px;
-  border-radius:20px;
-  font-size:14px;
-  font-weight:bold;
+/* Face avant (La jaquette du film) */
+.dvd-cover {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+  z-index: 2;
+  backface-visibility: hidden;
 }
 
-.watched{ background:#1db954; }
-.not-watched{ background:#e50914; }
-
-/* DELORAN */
-.delorean{
-  position:fixed;
-  top:-200px;
-  left:50%;
-  transform:translateX(-50%);
-  width:160px;
-  z-index:9998;
-  transition:top 1.2s cubic-bezier(.17,.67,.83,.67);
-  cursor:pointer;
+/* Tranche imprimée du DVD pour l'effet d'épaisseur 3D */
+.dvd-side {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 15px; /* Épaisseur du boîtier */
+  height: 100%;
+  background: #111;
+  transform: rotateY(-90deg);
+  transform-origin: left;
+  box-shadow: inset -2px 0 5px rgba(0,0,0,0.8);
 }
 
-/* MESSAGE */
-.message-overlay{
-  position:fixed;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:10000;
+/* CONTROLS & STATUS */
+.overlay {
+  position: fixed;
+  bottom: 30px;
+  width: 100%;
+  text-align: center;
+  z-index: 50;
 }
 
-.message-box{
-  background:rgba(0,0,0,0.85);
-  padding:30px 40px;
-  border-radius:20px;
-  font-size:22px;
-  cursor:pointer;
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
 }
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  color: white;
+  font-size: 18px;
+  padding: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: background 0.2s;
+}
+.control-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+.status {
+  position: fixed;
+  top: 75px;
+  right: 15px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 50;
+}
+
+.watched { background: #1db954; }
+.not-watched { background: #e50914; }
 </style>
 </head>
 
@@ -152,6 +204,8 @@ button{
   <button class="search-btn" onclick="searchMovie()">+</button>
   <div class="results" id="results"></div>
 </div>
+
+<div id="movie-title"></div>
 
 <div id="viewer"></div>
 <div id="status"></div>
@@ -171,8 +225,14 @@ let movies = JSON.parse(localStorage.getItem("movies")) || [];
 let currentIndex = 0;
 let startX = 0;
 
+/* FORCE HD POSTER */
+function getHDPoster(url) {
+  if (!url || url === "N/A") return url;
+  return url.replace(/@@\._V1_SX\d+\.jpg$/, "@@._V1_.jpg").replace("SX300", "SX1000");
+}
+
 /* SEARCH */
-async function searchMovie(){
+async function searchMovie() {
   const title = document.getElementById("title").value;
   const res = await fetch(`https://www.omdbapi.com/?s=${title}&apikey=${apiKey}`);
   const data = await res.json();
@@ -183,7 +243,7 @@ async function searchMovie(){
     data.Search.forEach(movie=>{
       if(movie.Poster !== "N/A"){
         const img = document.createElement("img");
-        img.src = movie.Poster.replace("SX300","SX1000");
+        img.src = getHDPoster(movie.Poster);
         img.onclick = ()=>addMovie(movie);
         resultsDiv.appendChild(img);
       }
@@ -192,35 +252,67 @@ async function searchMovie(){
 }
 
 function addMovie(movie){
-  movie.Poster = movie.Poster.replace("SX300","SX1000");
+  movie.Poster = getHDPoster(movie.Poster);
   movie.watched = false;
   movies.push(movie);
   save();
   render();
 }
 
-/* RENDER */
+/* RENDER AVEC CAROUSEL 3D ET BONUS SUR LES CÔTÉS */
 function render(){
-  if(!movies.length){
-    document.getElementById("viewer").innerHTML="";
-    document.getElementById("status").innerHTML="";
-    return;
-  }
-
   const viewer = document.getElementById("viewer");
-  viewer.innerHTML="";
+  const titleDiv = document.getElementById("movie-title");
+  const statusDiv = document.getElementById("status");
+  
+  viewer.innerHTML = "";
+  titleDiv.innerText = "";
+  statusDiv.innerHTML = "";
 
-  const img=document.createElement("img");
-  img.src=movies[currentIndex].Poster;
-  img.className="poster";
-  viewer.appendChild(img);
+  if(!movies.length) return;
 
-  document.getElementById("status").innerHTML=
-    `<div class="status ${movies[currentIndex].watched?"watched":"not-watched"}">
-    ${movies[currentIndex].watched?"VU":"À VOIR"}
+  // Mise à jour du titre principal (haut)
+  titleDiv.innerText = movies[currentIndex].Title;
+
+  // Statut VU / À VOIR
+  statusDiv.innerHTML = `
+    <div class="status ${movies[currentIndex].watched ? "watched" : "not-watched"}">
+      ${movies[currentIndex].watched ? "VU" : "À VOIR"}
     </div>`;
 
-  checkBackToFuture();
+  // Construction des index pour le DVD précédent et suivant
+  const prevIndex = (currentIndex - 1 + movies.length) % movies.length;
+  const nextIndex = (currentIndex + 1) % movies.length;
+
+  movies.forEach((movie, index) => {
+    // On affiche uniquement le central et ses deux voisins directs pour optimiser
+    if (index === currentIndex || index === prevIndex || index === nextIndex || movies.length <= 3) {
+      
+      const container = document.createElement("div");
+      container.className = "dvd-container";
+      
+      // Assigner la bonne classe de position 3D
+      if (index === currentIndex) {
+        container.classList.add("active");
+      } else if (index === prevIndex && movies.length > 1) {
+        container.classList.add("prev-slide");
+        container.onclick = prev; // Clic sur le DVD de gauche pour reculer
+      } else if (index === nextIndex && movies.length > 1) {
+        container.classList.add("next-slide");
+        container.onclick = next; // Clic sur le DVD de droite pour avancer
+      }
+
+      // Structure HTML du boîtier DVD en relief
+      container.innerHTML = `
+        <div class="dvd-box">
+          <div class="dvd-side"></div>
+          <img src="${movie.Poster}" class="dvd-cover" alt="Cover">
+        </div>
+      `;
+      
+      viewer.appendChild(container);
+    }
+  });
 }
 
 /* CONTROLS */
@@ -244,8 +336,9 @@ function prev(){
 }
 
 function removeMovie(){
+  if(!movies.length) return;
   movies.splice(currentIndex,1);
-  currentIndex=0;
+  currentIndex = 0;
   save();
   render();
 }
@@ -265,54 +358,9 @@ document.addEventListener("touchend",e=>{
   if(startX-endX>50) next();
 });
 
-/* EASTER EGG */
-function checkBackToFuture(){
-  const movie=movies[currentIndex];
-  if(movie.Title.toLowerCase().includes("retour vers le futur")){
-    launchDelorean();
-  }
-}
-
-function launchDelorean(){
-  if(document.querySelector(".delorean")) return;
-
-  const car=document.createElement("img");
-  car.src="C:\Users\fbize\Pictures\Dolorean.png";
-  car.className="delorean";
-  document.body.appendChild(car);
-
-  setTimeout(()=>{car.style.top="65vh";},50);
-
-  car.onclick=()=>{
-    showMessage();
-    car.remove();
-  };
-}
-
-function showMessage(){
-  document.getElementById("viewer").classList.add("blur-background");
-
-  const overlay=document.createElement("div");
-  overlay.className="message-overlay";
-
-  const box=document.createElement("div");
-  box.className="message-box";
-  box.innerText="Tu as très bon goût";
-
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  box.onclick=()=>{
-    document.getElementById("viewer").classList.remove("blur-background");
-    overlay.remove();
-  };
-}
-
+// Initialisation au chargement
 render();
 </script>
 
 </body>
 </html>
-
-
-
