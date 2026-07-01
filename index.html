@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ma Watchlist DVD 3D Mobile</title>
+<title>Ma Watchlist DVD 3D Mobile Fixé</title>
 
 <style>
 body {
@@ -31,7 +31,7 @@ body {
   pointer-events: none;
 }
 
-/* TOP BAR OPTIMISÉE MOBILE */
+/* TOP BAR */
 #topbar {
   position: fixed;
   top: 0;
@@ -114,12 +114,12 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  touch-action: none; /* Bloque le défilement de la page native sur smartphone */
+  touch-action: none;
   cursor: grab;
 }
 #viewer:active { cursor: grabbing; }
 
-/* AJUSTEMENT TAILLE DVD POUR ÉCRANS MOBILES */
+/* TAILLE DVD MOBILE */
 .dvd-container {
   position: absolute;
   width: 170px;
@@ -127,11 +127,10 @@ button {
   transform-style: preserve-3d;
   opacity: 0;
   visibility: hidden;
-  /* Transition progressive et amortie pour le passage d'un DVD à l'autre */
   transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease, visibility 0.8s;
 }
 
-/* DVD CENTRAL ACTIF */
+/* ÉTAT ACTIF CENTRAL */
 .dvd-container.active {
   opacity: 1;
   visibility: visible;
@@ -147,7 +146,7 @@ button {
   animation-play-state: paused;
 }
 
-/* SLIDES LATÉRALES FLUIDES */
+/* SLIDES LATÉRALES */
 .dvd-container.prev-slide {
   opacity: 0.15;
   visibility: visible;
@@ -162,13 +161,12 @@ button {
   z-index: 3;
 }
 
-/* STRUCTURE DU BOÎTIER */
+/* STRUCT 3D */
 .dvd-box {
   width: 100%;
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.5s ease;
 }
 
 .dvd-face {
@@ -194,7 +192,7 @@ button {
   border-radius: 0 3px 3px 0;
 }
 
-/* VERSO CORRIGÉ (Zéro Undefined) */
+/* VERSO AVEC SÉCURITÉ EN CAS D'IMAGE BLOQUÉE */
 .dvd-back {
   width: 100%;
   transform: rotateY(180deg) translateZ(8px);
@@ -277,7 +275,7 @@ button {
   transform: rotateY(90deg) translateZ(162px);
 }
 
-/* ACTIONS BUTTONS */
+/* ACTIONS */
 .action-zone {
   position: fixed;
   bottom: 35px;
@@ -358,7 +356,6 @@ async function searchMovie() {
       if(movie.Poster !== "N/A"){
         const img = document.createElement("img");
         img.src = cleanPosterURL(movie.Poster);
-        img.crossOrigin = "Anonymous"; 
         img.onclick = () => fetchFullDetails(movie.imdbID);
         resultsDiv.appendChild(img);
       }
@@ -370,7 +367,6 @@ async function fetchFullDetails(imdbID) {
   const res = await fetch(`https://www.omdbapi.com/?i=${imdbID}&plot=full&apikey=${apiKey}`);
   const detail = await res.json();
   
-  // Sécurisation anti-undefined systématique
   const cleanMovie = {
     Title: detail.Title || "Titre Inconnu",
     Poster: cleanPosterURL(detail.Poster),
@@ -392,6 +388,7 @@ async function fetchFullDetails(imdbID) {
   render();
 }
 
+// SÉCURISÉ : Ne bloque plus jamais le rendu si CORS refuse l'analyse d'image
 function applyDominantColor(imageUrl) {
   if (!imageUrl) return;
   const img = new Image();
@@ -399,23 +396,29 @@ function applyDominantColor(imageUrl) {
   img.src = imageUrl;
   
   img.onload = function() {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 10; canvas.height = 10;
-    ctx.drawImage(img, 0, 0, 10, 10);
-    const data = ctx.getImageData(0, 0, 10, 10).data;
-    
-    let r = 0, g = 0, b = 0, count = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      if(data[i] > 30 || data[i+1] > 30 || data[i+2] > 30) {
-        r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+    try {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 10; canvas.height = 10;
+      ctx.drawImage(img, 0, 0, 10, 10);
+      const data = ctx.getImageData(0, 0, 10, 10).data;
+      
+      let r = 0, g = 0, b = 0, count = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if(data[i] > 30 || data[i+1] > 30 || data[i+2] > 30) {
+          r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+        }
       }
-    }
-    if (count > 0) {
-      r = Math.floor(r / count); g = Math.floor(g / count); b = Math.floor(b / count);
-      document.body.style.background = `radial-gradient(circle, rgba(${r},${g},${b},0.3) 0%, rgba(8,8,8,1) 85%)`;
+      if (count > 0) {
+        r = Math.floor(r / count); g = Math.floor(g / count); b = Math.floor(b / count);
+        document.body.style.background = `radial-gradient(circle, rgba(${r},${g},${b},0.3) 0%, rgba(8,8,8,1) 85%)`;
+      }
+    } catch(e) {
+      // Sécurité : Si l'API bloque l'accès aux pixels, on met un fond neutre sombre au lieu de planter
+      document.body.style.background = "#0f1115";
     }
   };
+  img.onerror = () => { document.body.style.background = "#080808"; };
 }
 
 function render(){
@@ -447,7 +450,7 @@ function render(){
       container.innerHTML = `
         <div class="dvd-box">
           <div class="dvd-face dvd-front">
-            <img src="${movie.Poster}" alt="Front" crossorigin="anonymous">
+            <img src="${movie.Poster}" alt="Front">
           </div>
           <div class="dvd-face dvd-back">
             <div class="dvd-back-header">
@@ -472,7 +475,7 @@ function render(){
   });
 }
 
-// GESTION DU SWIPE MOBILE ET CORRECTION DU DEFILEMENT DE PAGE
+/* SWIPE LOGIC AVEC EFFET FLUIDE COORDONNÉ */
 const viewerZone = document.getElementById("viewer");
 
 viewerZone.addEventListener("touchstart", e => {
@@ -480,7 +483,6 @@ viewerZone.addEventListener("touchstart", e => {
 }, {passive: true});
 
 viewerZone.addEventListener("touchmove", e => {
-  // Empêche le navigateur de bouger la page pendant qu'on manipule la zone 3D
   if(e.cancelable) e.preventDefault(); 
 }, {passive: false});
 
@@ -489,7 +491,6 @@ viewerZone.addEventListener("touchend", e => {
   handleSwipe();
 }, {passive: true});
 
-// Fallback pour la souris sur ordinateur
 viewerZone.addEventListener("mousedown", e => { touchStartX = e.clientX; });
 viewerZone.addEventListener("mouseup", e => { touchEndX = e.clientX; handleSwipe(); });
 
