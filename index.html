@@ -123,6 +123,12 @@ button {
   z-index: 5;
 }
 
+/* ANIMATION DE ROTATION DU DVD */
+@keyframes spin3D {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
 .dvd-container.active .dvd-box {
   animation: spin3D 14s linear infinite;
 }
@@ -162,11 +168,10 @@ button {
   background: #121212;
 }
 
-/* AVANT */
+/* AVANT (Épaisseur totale de 16px, donc décalé de +8px en Z) */
 .dvd-front {
   width: 100%;
   transform: translateZ(8px);
-  backface-visibility: hidden;
 }
 .dvd-front img {
   width: 100%;
@@ -175,7 +180,7 @@ button {
   border-radius: 0 3px 3px 0;
 }
 
-/* ARRIÈRE */
+/* ARRIÈRE (Retourné et décalé de -8px en Z) */
 .dvd-back {
   width: 100%;
   transform: rotateY(180deg) translateZ(8px);
@@ -228,10 +233,11 @@ button {
   padding-top: 4px;
 }
 
-/* TRANCHE */
+/* TRANCHE GAUCHE */
 .dvd-spine-left {
   width: 16px;
-  transform: rotateY(-90deg) translateZ(8px);
+  left: -8px; /* Aligné au centre de l'épaisseur */
+  transform: rotateY(-90deg);
   background: #0a0a0a;
   display: flex;
   align-items: center;
@@ -251,10 +257,12 @@ button {
   opacity: 0.8;
 }
 
+/* TRANCHE DROITE (Ouverture du boîtier) */
 .dvd-spine-right {
   width: 16px;
+  right: -8px; /* Aligné au centre de l'épaisseur */
   background: linear-gradient(90deg, #141414 0%, #252525 40%, #161616 60%, #0a0a0a 100%);
-  transform: rotateY(90deg) translateZ(162px);
+  transform: rotateY(90deg);
 }
 
 /* BUTTONS */
@@ -285,6 +293,7 @@ button {
   font-size: 11px;
   font-weight: bold;
   z-index: 50;
+  cursor: pointer;
 }
 .watched { background: #1db954; color: white; }
 .not-watched { background: #e50914; color: white; }
