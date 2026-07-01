@@ -19,12 +19,12 @@ body {
   height: 100vh;
 }
 
-/* RECHERCHE & TOPBAR */
+/* TOP BAR */
 #topbar {
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(10, 12, 20, 0.8);
+  background: rgba(10, 12, 20, 0.9);
   padding: 15px;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -36,8 +36,9 @@ body {
 .search-box {
   display: flex;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   margin: 0 auto;
+  gap: 8px;
 }
 
 input {
@@ -60,10 +61,14 @@ button {
   font-weight: bold;
   background: #6366f1;
   color: white;
-  margin-left: 8px;
   transition: background 0.2s;
 }
 button:hover { background: #4f46e5; }
+
+button.demo-btn {
+  background: #10b981;
+}
+button.demo-btn:hover { background: #059669; }
 
 .results {
   display: flex;
@@ -71,6 +76,7 @@ button:hover { background: #4f46e5; }
   margin-top: 10px;
   gap: 10px;
   width: 100%;
+  justify-content: center;
 }
 .results img {
   height: 100px;
@@ -84,7 +90,7 @@ button:hover { background: #4f46e5; }
 /* EN-TÊTE APPLI */
 #app-header {
   position: fixed;
-  top: 90px;
+  top: 150px;
   width: 100%;
   text-align: center;
   z-index: 10;
@@ -97,14 +103,14 @@ button:hover { background: #4f46e5; }
   margin-bottom: 5px;
 }
 #movie-title {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
   text-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
-/* ZONE CAROUSEL */
+/* ZONE INTERACTIVE */
 #viewer {
   width: 100vw;
   height: 100vh;
@@ -115,7 +121,7 @@ button:hover { background: #4f46e5; }
   touch-action: none;
 }
 
-/* BOÎTIER DVD 3D */
+/* CONTENEUR DU BOÎTIER */
 .dvd-container {
   position: absolute;
   width: 220px;
@@ -127,25 +133,25 @@ button:hover { background: #4f46e5; }
   z-index: 1;
 }
 
-/* ÉTATS DU CAROUSEL (Identique à ta vidéo modèle) */
+/* POSITIONS DU CAROUSEL */
 .dvd-container.active {
   opacity: 1;
   visibility: visible;
-  transform: translate3d(0, 40px, 0) rotateY(-15deg); /* Légère inclinaison de présentation */
+  transform: translate3d(0, 60px, 0) rotateY(-18deg);
   z-index: 10;
 }
 
 .dvd-container.prev-slide {
-  opacity: 0.2;
+  opacity: 0.25;
   visibility: visible;
-  transform: translate3d(-280px, 40px, -300px) rotateY(45deg);
+  transform: translate3d(-260px, 60px, -250px) rotateY(40deg);
   z-index: 5;
 }
 
 .dvd-container.next-slide {
-  opacity: 0.2;
+  opacity: 0.25;
   visibility: visible;
-  transform: translate3d(280px, 40px, -300px) rotateY(-45deg);
+  transform: translate3d(260px, 60px, -250px) rotateY(-40deg);
   z-index: 5;
 }
 
@@ -154,12 +160,12 @@ button:hover { background: #4f46e5; }
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.5s ease;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Animation au survol / appui pour voir l'arrière */
+/* Retournement de la boîte au survol */
 .dvd-container.active:hover .dvd-box {
-  transform: rotateY(180deg);
+  transform: rotateY(162deg);
 }
 
 .dvd-face {
@@ -168,9 +174,9 @@ button:hover { background: #4f46e5; }
   left: 0;
   width: 100%;
   height: 100%;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.7);
   backface-visibility: hidden;
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
   background: #111;
 }
@@ -188,13 +194,13 @@ button:hover { background: #4f46e5; }
 /* FACE ARRIÈRE */
 .dvd-back {
   transform: rotateY(180deg) translateZ(10px);
-  padding: 15px;
+  padding: 18px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: #0b0f19;
-  border: 1px solid rgba(255,255,255,0.05);
+  background: #0d111c;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .dvd-back-header {
@@ -202,24 +208,28 @@ button:hover { background: #4f46e5; }
   justify-content: space-between;
   font-size: 11px;
   font-weight: bold;
-  color: #6366f1;
+  color: #818cf8;
 }
 .dvd-rating { color: #f5c518; }
+
 .dvd-back-body {
   font-size: 10px;
   color: #94a3b8;
   line-height: 1.4;
   text-align: justify;
+  margin: 10px 0;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 7;
+  -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
 }
+
 .dvd-back-meta {
   font-size: 9px;
   color: #64748b;
   border-top: 1px dashed rgba(255,255,255,0.1);
   padding-top: 8px;
+  line-height: 1.4;
 }
 .dvd-back-meta strong { color: #cbd5e1; }
 
@@ -230,7 +240,7 @@ button:hover { background: #4f46e5; }
   left: -10px;
   width: 20px;
   height: 100%;
-  background: #070a12;
+  background: #06080d;
   transform: rotateY(-90deg);
   transform-origin: right center;
   display: flex;
@@ -244,10 +254,12 @@ button:hover { background: #4f46e5; }
   text-transform: uppercase;
   white-space: nowrap;
   transform: rotate(90deg);
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  width: 280px;
+  text-align: center;
 }
 
-/* CONTRÔLES INFÉRIEURS */
+/* ZONE ACTIONS */
 .action-zone {
   position: fixed;
   bottom: 40px;
@@ -270,7 +282,7 @@ button:hover { background: #4f46e5; }
 
 #status {
   position: fixed;
-  top: 100px;
+  top: 160px;
   right: 20px;
   padding: 6px 14px;
   border-radius: 20px;
@@ -287,8 +299,9 @@ button:hover { background: #4f46e5; }
 
 <div id="topbar">
   <div class="search-box">
-    <input id="title" placeholder="Rechercher et ajouter un film (ex: Dune, Inception)...">
-    <button onclick="searchMovie()">+</button>
+    <input id="title" placeholder="Tapez un film...">
+    <button onclick="searchMovie()">Chercher</button>
+    <button class="demo-btn" onclick="addDemoMovie()">+ Ajouter DVD de Test</button>
   </div>
   <div class="results" id="results"></div>
 </div>
@@ -306,10 +319,45 @@ button:hover { background: #4f46e5; }
 </div>
 
 <script>
-const apiKey = "410d347b";
+// Ta nouvelle clé API valide
+const apiKey = "cf42011e"; 
 let movies = JSON.parse(localStorage.getItem("movies")) || [];
 let currentIndex = 0;
 let touchStartX = 0;
+
+function addDemoMovie() {
+  const demoMovies = [
+    {
+      Title: "Inception",
+      Poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&q=80",
+      Plot: "Dom Cobb est un voleur expérimenté dans l'art périlleux de l'extraction : sa spécialité consiste à s'approprier les secrets les plus précieux d'un individu, enfouis dans son subconscient pendant qu'il rêve.",
+      Year: "2010",
+      Genre: "Action, Sci-Fi",
+      Director: "Christopher Nolan",
+      Actors: "Leonardo DiCaprio, Joseph Gordon-Levitt",
+      Rating: "8.8",
+      watched: false
+    },
+    {
+      Title: "Dune",
+      Poster: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&q=80",
+      Plot: "L'histoire de Paul Atreides, un jeune homme brillant et doué au destin plus grand que lui, qui doit se rendre sur la planète la plus dangereuse de l'univers pour assurer l'avenir de sa famille.",
+      Year: "2021",
+      Genre: "Adventure, Sci-Fi",
+      Director: "Denis Villeneuve",
+      Actors: "Timothée Chalamet, Rebecca Ferguson",
+      Rating: "8.0",
+      watched: false
+    }
+  ];
+
+  const chosenDemo = demoMovies[movies.length % demoMovies.length];
+  movies.push(chosenDemo);
+  currentIndex = movies.length - 1;
+  save();
+  buildCarousel();
+  updateCarouselState();
+}
 
 function cleanPosterURL(url) {
   if (!url || url === "N/A") return "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=500&q=80";
@@ -326,6 +374,11 @@ async function searchMovie() {
     const resultsDiv = document.getElementById("results");
     resultsDiv.innerHTML = "";
 
+    if (data.Response === "False") {
+      alert("Erreur API : Film introuvable ou problème avec la clé. Utilisez le bouton vert pour tester l'interface !");
+      return;
+    }
+
     if(data.Search){
       data.Search.forEach(movie => {
         if(movie.Poster !== "N/A"){
@@ -336,7 +389,9 @@ async function searchMovie() {
         }
       });
     }
-  } catch(e) { console.error("Erreur API", e); }
+  } catch(e) { 
+    alert("Impossible de joindre l'API.");
+  }
 }
 
 async function fetchFullDetails(imdbID) {
@@ -365,7 +420,6 @@ async function fetchFullDetails(imdbID) {
   updateCarouselState();
 }
 
-// On construit l'arborescence DOM une seule fois ou quand la liste change de taille
 function buildCarousel() {
   const viewer = document.getElementById("viewer");
   viewer.innerHTML = "";
@@ -407,7 +461,6 @@ function buildCarousel() {
   });
 }
 
-// On change simplement les classes CSS pour animer de façon fluide comme sur l'application native
 function updateCarouselState() {
   if(!movies.length) return;
 
@@ -425,7 +478,7 @@ function updateCarouselState() {
     const el = document.getElementById(`dvd-${index}`);
     if(!el) return;
     
-    el.className = "dvd-container"; // Reset
+    el.className = "dvd-container";
     
     if (index === currentIndex) {
       el.classList.add("active");
@@ -437,7 +490,7 @@ function updateCarouselState() {
   });
 }
 
-/* DÉTECTION DU SWIPE FLUIDE */
+/* TOUCH & SWIPE MANAGEMENT */
 const viewerZone = document.getElementById("viewer");
 viewerZone.addEventListener("touchstart", e => touchStartX = e.touches[0].clientX, {passive: true});
 viewerZone.addEventListener("touchend", e => {
@@ -461,7 +514,7 @@ function prev(){ if(!movies.length) return; currentIndex=(currentIndex-1+movies.
 function removeMovie(){ if(!movies.length) return; movies.splice(currentIndex,1); currentIndex = 0; save(); buildCarousel(); updateCarouselState(); }
 function save(){ localStorage.setItem("movies",JSON.stringify(movies)); }
 
-// Initialisation
+// Lancement automatique au chargement
 buildCarousel();
 updateCarouselState();
 </script>
