@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma Watchlist DVD 3D Parfaite</title>
+<title>Ma Watchlist DVD 3D Fluide</title>
 
 <style>
 body {
@@ -12,7 +12,8 @@ body {
   background: #080808;
   color: white;
   overflow: hidden;
-  perspective: 1500px;
+  perspective: 2000px; /* Plus de perspective pour un effet 3D plus saisissant */
+  user-select: none;
 }
 
 /* TOP BAR */
@@ -28,105 +29,110 @@ body {
 }
 
 input {
-  width: 65%;
+  width: 70%;
   padding: 12px;
   border-radius: 25px;
   border: none;
   font-size: 16px;
   background: #1c1c1c;
   color: white;
+  outline: none;
 }
 
 button {
-  padding: 12px 16px;
+  padding: 12px 20px;
   border: none;
   border-radius: 25px;
   font-size: 14px;
   cursor: pointer;
+  font-weight: bold;
 }
 
-.search-btn { background: #1db954; color: white; }
+.search-btn { background: #1db954; color: white; margin-left: 8px; }
 
 .results {
   display: flex;
   overflow-x: auto;
   margin-top: 10px;
+  gap: 10px;
 }
 
 .results img {
-  height: 130px;
+  height: 110px;
   border-radius: 6px;
-  margin-right: 10px;
   cursor: pointer;
+  transition: transform 0.2s;
 }
+.results img:hover { transform: scale(1.05); }
 
 /* TITRE DU FILM */
 #movie-title {
   position: fixed;
-  top: 140px;
+  top: 150px;
   width: 100%;
   text-align: center;
-  font-size: 26px;
-  font-weight: bold;
+  font-size: 28px;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   z-index: 10;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-/* CAROUSEL CONTENEUR */
+/* ZONE DE VISUALISATION (SWIPE) */
 #viewer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   width: 100vw;
   height: 100vh;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
 }
+#viewer:active { cursor: grabbing; }
 
 .dvd-container {
   position: absolute;
-  width: 220px;
-  height: 310px;
-  transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  width: 210px;
+  height: 295px;
   transform-style: preserve-3d;
   opacity: 0;
   visibility: hidden;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s linear;
 }
 
+/* DVD CENTRAL ACTIF */
 .dvd-container.active {
   opacity: 1;
   visibility: visible;
-  transform: translate3d(0, 20px, 0);
+  transform: translate3d(0, 30px, 0);
   z-index: 5;
 }
 
-/* Animation de rotation à 360° forcée */
 .dvd-container.active .dvd-box {
-  animation: spin3D 12s linear infinite;
+  animation: spin3D 14s linear infinite;
 }
 
 .dvd-container.active:hover .dvd-box {
   animation-play-state: paused;
 }
 
-/* DVD sur les côtés */
+/* GAUCHE ET DROITE (SANS ACCROCS) */
 .dvd-container.prev-slide {
-  opacity: 0.25;
+  opacity: 0.15;
   visibility: visible;
-  transform: translate3d(-350px, 40px, -200px) rotateY(45deg);
+  transform: translate3d(-320px, 50px, -300px) rotateY(55deg);
   z-index: 3;
-  cursor: pointer;
 }
 
 .dvd-container.next-slide {
-  opacity: 0.25;
+  opacity: 0.15;
   visibility: visible;
-  transform: translate3d(350px, 40px, -200px) rotateY(-45deg);
+  transform: translate3d(320px, 50px, -300px) rotateY(-55deg);
   z-index: 3;
-  cursor: pointer;
 }
 
-/* STRUCTURE DU BOÎTIER DVD REEL */
+/* BOÎTIER 3D */
 .dvd-box {
   width: 100%;
   height: 100%;
@@ -139,14 +145,15 @@ button {
   top: 0;
   left: 0;
   height: 100%;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.9);
   box-sizing: border-box;
+  background: #111;
 }
 
-/* FACE AVANT (Jaquette HD principale) */
+/* AVANT */
 .dvd-front {
   width: 100%;
-  transform: translateZ(10px); /* Moitié de l'épaisseur totale (20px) */
+  transform: translateZ(9px);
   backface-visibility: hidden;
 }
 .dvd-front img {
@@ -156,49 +163,56 @@ button {
   border-radius: 0 4px 4px 0;
 }
 
-/* VRAIE FACE ARRIÈRE GÉNÉRÉE (Fini le flou, design propre style dos de DVD) */
+/* ARRIÈRE (Nouveau design propre sans flou avec vraies infos) */
 .dvd-back {
   width: 100%;
-  transform: rotateY(180deg) translateZ(10px);
-  background: #141414;
-  border: 4px solid #1a1a1a;
+  transform: rotateY(180deg) translateZ(9px);
+  border: 3px solid #1a1a1a;
   border-radius: 4px 0 0 4px;
-  padding: 15px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  background: #151515;
 }
 .dvd-back-header {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: bold;
   text-transform: uppercase;
   border-bottom: 1px solid #333;
-  padding-bottom: 5px;
+  padding-bottom: 4px;
   color: #1db954;
+  letter-spacing: 1px;
 }
 .dvd-back-body {
-  font-size: 10px;
-  color: #aaa;
+  font-size: 9px;
+  color: #ccc;
   line-height: 1.4;
   text-align: justify;
+  margin: 8px 0;
+  flex-grow: 1;
+}
+.dvd-back-meta {
+  font-size: 8px;
+  color: #888;
+  border-top: 1px dashed #222;
+  padding-top: 4px;
 }
 .dvd-back-footer {
-  font-size: 8px;
+  font-size: 7px;
   color: #555;
   text-align: center;
   border-top: 1px solid #222;
-  padding-top: 5px;
-  letter-spacing: 1px;
+  padding-top: 4px;
+  letter-spacing: 0.5px;
 }
 
-/* TRANCHE DU DVD (Le Côté) */
+/* TRANCHE DE GAUCHE */
 .dvd-spine-left {
-  width: 20px; /* Épaisseur du boîtier */
-  height: 100%;
-  transform: rotateY(-90deg) translateZ(10px);
-  background: #111;
-  border-left: 1px solid rgba(255,255,255,0.1);
-  border-right: 1px solid rgba(255,255,255,0.1);
+  width: 18px;
+  transform: rotateY(-90deg) translateZ(9px);
+  border-left: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255,255,255,0.05);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -206,21 +220,21 @@ button {
 }
 .dvd-spine-text {
   color: #fff;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: bold;
   text-transform: uppercase;
   white-space: nowrap;
   transform: rotate(90deg);
-  letter-spacing: 3px;
-  width: 280px;
+  letter-spacing: 2px;
+  width: 260px;
   text-align: center;
 }
 
-/* CÔTÉ DROIT (Plastique noir d'ouverture) */
+/* TRANCHE DE DROITE */
 .dvd-spine-right {
-  width: 20px;
+  width: 18px;
   background: linear-gradient(90deg, #151515 0%, #2a2a2a 40%, #1a1a1a 60%, #0d0d0d 100%);
-  transform: rotateY(90deg) translateZ(210px);
+  transform: rotateY(90deg) translateZ(192px);
 }
 
 @keyframes spin3D {
@@ -228,42 +242,34 @@ button {
   100% { transform: rotateY(360deg); }
 }
 
-/* CONTROLS & UTILS */
-.overlay {
+/* UTILS */
+.action-zone {
   position: fixed;
-  bottom: 30px;
+  bottom: 40px;
   width: 100%;
   text-align: center;
   z-index: 50;
 }
-
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-.control-btn {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(5px);
-  color: white;
-  font-size: 18px;
-  padding: 16px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.15);
+.delete-btn {
+  background: rgba(229, 9, 20, 0.2);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  color: #ff4d4d;
+  padding: 10px 20px;
+  border-radius: 20px;
   cursor: pointer;
 }
-.control-btn:hover { background: rgba(255, 255, 255, 0.2); }
+.delete-btn:hover { background: rgba(229, 9, 20, 0.4); }
 
 .status {
   position: fixed;
   top: 75px;
   right: 15px;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   z-index: 50;
+  cursor: pointer;
 }
 .watched { background: #1db954; }
 .not-watched { background: #e50914; }
@@ -272,29 +278,27 @@ button {
 <body>
 
 <div id="topbar">
-  <input id="title" placeholder="Ajouter un film...">
-  <button class="search-btn" onclick="searchMovie()">+</button>
+  <input id="title" placeholder="Rechercher et ajouter un film...">
+  <button class="search-btn" onclick="searchMovie()">Ajouter</button>
   <div class="results" id="results"></div>
 </div>
 
 <div id="movie-title"></div>
 <div id="viewer"></div>
-<div id="status"></div>
+<div id="status" onclick="toggleWatched()"></div>
 
-<div class="overlay">
-  <div class="controls">
-    <button class="control-btn" onclick="prev()">◀</button>
-    <button class="control-btn" onclick="toggleWatched()">✓</button>
-    <button class="control-btn" onclick="removeMovie()">🗑</button>
-    <button class="control-btn" onclick="next()">▶</button>
-  </div>
+<div class="action-zone">
+  <button class="delete-btn" onclick="removeMovie()">Supprimer de la liste</button>
 </div>
 
 <script>
 const apiKey = "410d347b";
 let movies = JSON.parse(localStorage.getItem("movies")) || [];
 let currentIndex = 0;
-let startX = 0;
+
+// Variables pour capter les gestes de glissement (Swipe / Drag)
+let touchStartX = 0;
+let touchEndX = 0;
 
 function getHDPoster(url) {
   if (!url || url === "N/A") return url;
@@ -303,28 +307,45 @@ function getHDPoster(url) {
 
 async function searchMovie() {
   const title = document.getElementById("title").value;
+  if(!title) return;
   const res = await fetch(`https://www.omdbapi.com/?s=${title}&apikey=${apiKey}`);
   const data = await res.json();
   const resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "";
 
   if(data.Search){
-    data.Search.forEach(movie=>{
+    data.Search.forEach(movie => {
       if(movie.Poster !== "N/A"){
         const img = document.createElement("img");
         img.src = getHDPoster(movie.Poster);
-        img.onclick = ()=>addMovie(movie);
+        img.onclick = () => fetchFullDetails(movie.imdbID);
         resultsDiv.appendChild(img);
       }
     });
   }
 }
 
-function addMovie(movie){
-  movie.Poster = getHDPoster(movie.Poster);
-  movie.watched = false;
-  movies.push(movie);
+// Récupération des vraies données du film pour le résumé arrière
+async function fetchFullDetails(imdbID) {
+  const res = await fetch(`https://www.omdbapi.com/?i=${imdbID}&plot=full&apikey=${apiKey}`);
+  const detail = await res.json();
+  
+  const cleanMovie = {
+    Title: detail.Title,
+    Poster: getHDPoster(detail.Poster),
+    Plot: detail.Plot !== "N/A" ? detail.Plot : "Aucun synopsis disponible pour ce titre.",
+    Year: detail.Year,
+    Genre: detail.Genre,
+    Director: detail.Director,
+    Actors: detail.Actors,
+    watched: false
+  };
+
+  movies.push(cleanMovie);
+  currentIndex = movies.length - 1;
   save();
+  document.getElementById("results").innerHTML = "";
+  document.getElementById("title").value = "";
   render();
 }
 
@@ -340,7 +361,7 @@ function render(){
   if(!movies.length) return;
 
   titleDiv.innerText = movies[currentIndex].Title;
-  statusDiv.innerHTML = `<div class="status ${movies[currentIndex].watched ? "watched" : "not-watched"}">${movies[currentIndex].watched ? "VU" : "À VOIR"}</div>`;
+  statusDiv.innerHTML = `<div class="${movies[currentIndex].watched ? 'watched' : 'not-watched'}">${movies[currentIndex].watched ? 'VU (Tap pour changer)' : 'À VOIR (Tap pour changer)'}</div>`;
 
   const prevIndex = (currentIndex - 1 + movies.length) % movies.length;
   const nextIndex = (currentIndex + 1) % movies.length;
@@ -352,22 +373,24 @@ function render(){
       container.className = "dvd-container";
       
       if (index === currentIndex) container.classList.add("active");
-      else if (index === prevIndex && movies.length > 1) { container.classList.add("prev-slide"); container.onclick = prev; }
-      else if (index === nextIndex && movies.length > 1) { container.classList.add("next-slide"); container.onclick = next; }
+      else if (index === prevIndex && movies.length > 1) container.classList.add("prev-slide");
+      else if (index === nextIndex && movies.length > 1) container.classList.add("next-slide");
 
-      // HTML structure forcée : Face avant nette, Vrai dos généré propre, Vrai côté texturé
+      // Injection des vraies métadonnées dynamiques à l'arrière sans flou
       container.innerHTML = `
         <div class="dvd-box">
           <div class="dvd-face dvd-front">
             <img src="${movie.Poster}" alt="Front">
           </div>
           <div class="dvd-face dvd-back">
-            <div class="dvd-back-header">Synopsis & Spécifications</div>
-            <div class="dvd-back-body">
-              Découvrez l'aventure extraordinaire de ce chef-d'œuvre cinématographique mondialement acclamé : "${movie.Title}". Retrouvez les acteurs phares et des scènes d'anthologie dans cette édition collector exclusive en haute définition.
+            <div class="dvd-back-header">${movie.Year} • ${movie.Genre.split(',')[0]}</div>
+            <div class="dvd-back-body">${movie.Plot.substring(0, 180)}...</div>
+            <div class="dvd-back-meta">
+              <strong>Réal :</strong> ${movie.Director}<br>
+              <strong>Avec :</strong> ${movie.Actors.substring(0, 45)}...
             </div>
             <div class="dvd-back-footer">
-              DOLBY DIGITAL - DVD VIDEO - PAL - REGION 2 - COMPATIBLE 16:9
+              DOLBY DIGITAL • HIGH DEFINITION • PAL REGION 2
             </div>
           </div>
           <div class="dvd-face dvd-spine-left">
@@ -382,14 +405,29 @@ function render(){
   });
 }
 
+// GESTION DU SWIPE / DRAG (Souris et Doigts)
+const viewerZone = document.getElementById("viewer");
+
+viewerZone.addEventListener("touchstart", e => { touchStartX = e.touches[0].clientX; }, {passive: true});
+viewerZone.addEventListener("touchend", e => { touchEndX = e.changedTouches[0].clientX; handleSwipe(); }, {passive: true});
+
+viewerZone.addEventListener("mousedown", e => { touchStartX = e.clientX; });
+viewerZone.addEventListener("mouseup", e => { touchEndX = e.clientX; handleSwipe(); });
+
+function handleSwipe() {
+  const swipeThreshold = 60; // Sensibilité du glissement
+  if (touchStartX - touchEndX > swipeThreshold) {
+    next();
+  } else if (touchEndX - touchStartX > swipeThreshold) {
+    prev();
+  }
+}
+
 function toggleWatched(){ if(!movies.length) return; movies[currentIndex].watched=!movies[currentIndex].watched; save(); render(); }
 function next(){ if(!movies.length) return; currentIndex=(currentIndex+1)%movies.length; render(); }
 function prev(){ if(!movies.length) return; currentIndex=(currentIndex-1+movies.length)%movies.length; render(); }
 function removeMovie(){ if(!movies.length) return; movies.splice(currentIndex,1); currentIndex = 0; save(); render(); }
 function save(){ localStorage.setItem("movies",JSON.stringify(movies)); }
-
-document.addEventListener("touchstart",e=>{ startX=e.touches[0].clientX; });
-document.addEventListener("touchend",e=>{ let endX=e.changedTouches[0].clientX; if(endX-startX>50) prev(); if(startX-endX>50) next(); });
 
 render();
 </script>
