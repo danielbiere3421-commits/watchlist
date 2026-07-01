@@ -3,17 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ma Watchlist DVD 3D Fluide</title>
+<title>Ma Watchlist DVD 3D Cinématique</title>
 
 <style>
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #080808;
   color: white;
   overflow: hidden;
-  perspective: 2000px; /* Plus de perspective pour un effet 3D plus saisissant */
+  perspective: 2000px;
   user-select: none;
+  transition: background 1s ease; /* Transition fluide du fond coloré */
+}
+
+/* FOND DYNAMIQUE DE COULEUR */
+#bg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(8,8,8,1) 80%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* TOP BAR */
@@ -21,16 +34,23 @@ body {
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(0, 0, 0, 0.9);
-  padding: 12px;
-  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.85);
+  padding: 15px;
+  backdrop-filter: blur(20px);
   z-index: 100;
-  border-bottom: 1px solid #111;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+}
+
+.search-box {
+  display: flex;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 input {
-  width: 70%;
-  padding: 12px;
+  flex-grow: 1;
+  padding: 12px 20px;
   border-radius: 25px;
   border: none;
   font-size: 16px;
@@ -40,46 +60,54 @@ input {
 }
 
 button {
-  padding: 12px 20px;
+  padding: 12px 24px;
   border: none;
   border-radius: 25px;
   font-size: 14px;
   cursor: pointer;
   font-weight: bold;
+  background: #1db954;
+  color: white;
+  margin-left: 10px;
+  transition: background 0.2s;
 }
-
-.search-btn { background: #1db954; color: white; margin-left: 8px; }
+button:hover { background: #1ed760; }
 
 .results {
   display: flex;
   overflow-x: auto;
-  margin-top: 10px;
-  gap: 10px;
+  margin-top: 12px;
+  gap: 12px;
+  justify-content: center;
 }
 
 .results img {
-  height: 110px;
+  height: 120px;
   border-radius: 6px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
-.results img:hover { transform: scale(1.05); }
+.results img:hover { 
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(29, 185, 84, 0.3);
+}
 
 /* TITRE DU FILM */
 #movie-title {
   position: fixed;
-  top: 150px;
+  top: 160px;
   width: 100%;
   text-align: center;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 3px;
   z-index: 10;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  text-shadow: 0 4px 15px rgba(0,0,0,0.8);
 }
 
-/* ZONE DE VISUALISATION (SWIPE) */
+/* ZONE DU CAROUSEL TOUCH / DRAG */
 #viewer {
   width: 100vw;
   height: 100vh;
@@ -93,46 +121,46 @@ button {
 
 .dvd-container {
   position: absolute;
-  width: 210px;
-  height: 295px;
+  width: 220px;
+  height: 310px;
   transform-style: preserve-3d;
   opacity: 0;
   visibility: hidden;
-  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s linear;
+  transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
 }
 
-/* DVD CENTRAL ACTIF */
+/* ÉTAT ACTIF CENTRAL */
 .dvd-container.active {
   opacity: 1;
   visibility: visible;
-  transform: translate3d(0, 30px, 0);
+  transform: translate3d(0, 40px, 0);
   z-index: 5;
 }
 
 .dvd-container.active .dvd-box {
-  animation: spin3D 14s linear infinite;
+  animation: spin3D 15s linear infinite;
 }
 
 .dvd-container.active:hover .dvd-box {
   animation-play-state: paused;
 }
 
-/* GAUCHE ET DROITE (SANS ACCROCS) */
+/* EFFET DE PROFONDEUR DES CÔTÉS */
 .dvd-container.prev-slide {
-  opacity: 0.15;
+  opacity: 0.2;
   visibility: visible;
-  transform: translate3d(-320px, 50px, -300px) rotateY(55deg);
+  transform: translate3d(-340px, 60px, -350px) rotateY(60deg);
   z-index: 3;
 }
 
 .dvd-container.next-slide {
-  opacity: 0.15;
+  opacity: 0.2;
   visibility: visible;
-  transform: translate3d(320px, 50px, -300px) rotateY(-55deg);
+  transform: translate3d(340px, 60px, -350px) rotateY(-60deg);
   z-index: 3;
 }
 
-/* BOÎTIER 3D */
+/* BOÎTIER 3D STRUCTURE REELLE */
 .dvd-box {
   width: 100%;
   height: 100%;
@@ -145,15 +173,15 @@ button {
   top: 0;
   left: 0;
   height: 100%;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.9);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.9);
   box-sizing: border-box;
-  background: #111;
+  background: #141414;
 }
 
-/* AVANT */
+/* RECTO */
 .dvd-front {
   width: 100%;
-  transform: translateZ(9px);
+  transform: translateZ(10px);
   backface-visibility: hidden;
 }
 .dvd-front img {
@@ -163,56 +191,70 @@ button {
   border-radius: 0 4px 4px 0;
 }
 
-/* ARRIÈRE (Nouveau design propre sans flou avec vraies infos) */
+/* VERSO (Vrai dos complet et sans aucun flou) */
 .dvd-back {
   width: 100%;
-  transform: rotateY(180deg) translateZ(9px);
-  border: 3px solid #1a1a1a;
+  transform: rotateY(180deg) translateZ(10px);
+  border: 1px solid rgba(255,255,255,0.05);
   border-radius: 4px 0 0 4px;
-  padding: 14px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: #151515;
+  background: #111111;
 }
+
 .dvd-back-header {
+  display: flex;
+  justify-content: space-between;
   font-size: 11px;
   font-weight: bold;
-  text-transform: uppercase;
-  border-bottom: 1px solid #333;
-  padding-bottom: 4px;
-  color: #1db954;
-  letter-spacing: 1px;
+  color: #888;
+  border-bottom: 1px solid #252525;
+  padding-bottom: 5px;
 }
+.dvd-rating {
+  color: #f5c518; /* Couleur Or IMDb */
+  font-weight: bold;
+}
+
 .dvd-back-body {
-  font-size: 9px;
-  color: #ccc;
+  font-size: 10px;
+  color: #ddd;
   line-height: 1.4;
   text-align: justify;
-  margin: 8px 0;
-  flex-grow: 1;
+  margin: 10px 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 7; /* Limite propre pour éviter les débordements textuels */
+  -webkit-box-orient: vertical;
 }
+
 .dvd-back-meta {
-  font-size: 8px;
-  color: #888;
-  border-top: 1px dashed #222;
-  padding-top: 4px;
+  font-size: 9px;
+  color: #aaa;
+  border-top: 1px dashed #252525;
+  padding-top: 6px;
+  line-height: 1.3;
 }
+.dvd-back-meta strong { color: #fff; }
+
 .dvd-back-footer {
   font-size: 7px;
-  color: #555;
+  color: #444;
   text-align: center;
   border-top: 1px solid #222;
-  padding-top: 4px;
+  padding-top: 5px;
   letter-spacing: 0.5px;
 }
 
-/* TRANCHE DE GAUCHE */
+/* CÔTÉ (Tranche) */
 .dvd-spine-left {
-  width: 18px;
-  transform: rotateY(-90deg) translateZ(9px);
-  border-left: 1px solid rgba(255,255,255,0.05);
-  border-right: 1px solid rgba(255,255,255,0.05);
+  width: 20px;
+  transform: rotateY(-90deg) translateZ(10px);
+  background: #0d0d0d;
+  border-left: 1px solid rgba(255,255,255,0.03);
+  border-right: 1px solid rgba(255,255,255,0.03);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -220,21 +262,22 @@ button {
 }
 .dvd-spine-text {
   color: #fff;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: bold;
   text-transform: uppercase;
   white-space: nowrap;
   transform: rotate(90deg);
-  letter-spacing: 2px;
-  width: 260px;
+  letter-spacing: 2.5px;
+  width: 280px;
   text-align: center;
+  opacity: 0.85;
 }
 
-/* TRANCHE DE DROITE */
+/* PLASTIQUE TRUNCHE DROITE */
 .dvd-spine-right {
-  width: 18px;
-  background: linear-gradient(90deg, #151515 0%, #2a2a2a 40%, #1a1a1a 60%, #0d0d0d 100%);
-  transform: rotateY(90deg) translateZ(192px);
+  width: 20px;
+  background: linear-gradient(90deg, #141414 0%, #2b2b2b 40%, #1a1a1a 60%, #0a0a0a 100%);
+  transform: rotateY(90deg) translateZ(210px);
 }
 
 @keyframes spin3D {
@@ -242,7 +285,7 @@ button {
   100% { transform: rotateY(360deg); }
 }
 
-/* UTILS */
+/* ZONE ACTIONS */
 .action-zone {
   position: fixed;
   bottom: 40px;
@@ -251,35 +294,42 @@ button {
   z-index: 50;
 }
 .delete-btn {
-  background: rgba(229, 9, 20, 0.2);
-  border: 1px solid rgba(229, 9, 20, 0.4);
+  background: rgba(229, 9, 20, 0.15);
+  border: 1px solid rgba(229, 9, 20, 0.3);
   color: #ff4d4d;
-  padding: 10px 20px;
+  padding: 10px 24px;
   border-radius: 20px;
   cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
 }
-.delete-btn:hover { background: rgba(229, 9, 20, 0.4); }
+.delete-btn:hover { background: rgba(229, 9, 20, 0.35); }
 
 .status {
   position: fixed;
-  top: 75px;
-  right: 15px;
-  padding: 6px 12px;
+  top: 85px;
+  right: 20px;
+  padding: 8px 16px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: bold;
   z-index: 50;
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-.watched { background: #1db954; }
-.not-watched { background: #e50914; }
+.watched { background: #1db954; color: white; }
+.not-watched { background: #e50914; color: white; }
 </style>
 </head>
 <body>
 
+<div id="bg-overlay"></div>
+
 <div id="topbar">
-  <input id="title" placeholder="Rechercher et ajouter un film...">
-  <button class="search-btn" onclick="searchMovie()">Ajouter</button>
+  <div class="search-box">
+    <input id="title" placeholder="Rechercher un film à ajouter...">
+    <button onclick="searchMovie()">Ajouter</button>
+  </div>
   <div class="results" id="results"></div>
 </div>
 
@@ -288,7 +338,7 @@ button {
 <div id="status" onclick="toggleWatched()"></div>
 
 <div class="action-zone">
-  <button class="delete-btn" onclick="removeMovie()">Supprimer de la liste</button>
+  <button class="delete-btn" onclick="removeMovie()">Supprimer de ma liste</button>
 </div>
 
 <script>
@@ -296,57 +346,117 @@ const apiKey = "410d347b";
 let movies = JSON.parse(localStorage.getItem("movies")) || [];
 let currentIndex = 0;
 
-// Variables pour capter les gestes de glissement (Swipe / Drag)
 let touchStartX = 0;
 let touchEndX = 0;
 
-function getHDPoster(url) {
-  if (!url || url === "N/A") return url;
-  return url.replace(/@@\._V1_SX\d+\.jpg$/, "@@._V1_.jpg").replace("SX300", "SX1000");
+// Force l'affichage en HTTPS et demande les images grand format sans restrictions
+function cleanPosterURL(url) {
+  if (!url || url === "N/A") return "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=500&q=80";
+  let hdUrl = url.replace(/@@\._V1_SX\d+\.jpg$/, "@@._V1_.jpg").replace("SX300", "SX1000");
+  if (hdUrl.startsWith("http://")) {
+    hdUrl = hdUrl.replace("http://", "https://");
+  }
+  return hdUrl;
 }
 
 async function searchMovie() {
-  const title = document.getElementById("title").value;
+  const title = document.getElementById("title").value.trim();
   if(!title) return;
-  const res = await fetch(`https://www.omdbapi.com/?s=${title}&apikey=${apiKey}`);
-  const data = await res.json();
-  const resultsDiv = document.getElementById("results");
-  resultsDiv.innerHTML = "";
+  
+  try {
+    const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(title)}&apikey=${apiKey}`);
+    const data = await res.json();
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
 
-  if(data.Search){
-    data.Search.forEach(movie => {
-      if(movie.Poster !== "N/A"){
-        const img = document.createElement("img");
-        img.src = getHDPoster(movie.Poster);
-        img.onclick = () => fetchFullDetails(movie.imdbID);
-        resultsDiv.appendChild(img);
-      }
-    });
+    if(data.Search){
+      data.Search.forEach(movie => {
+        if(movie.Poster !== "N/A"){
+          const img = document.createElement("img");
+          img.src = cleanPosterURL(movie.Poster);
+          // Évite les blocages d'analyse de couleur inter-origines
+          img.crossOrigin = "Anonymous"; 
+          img.onclick = () => fetchFullDetails(movie.imdbID);
+          resultsDiv.appendChild(img);
+        }
+      });
+    }
+  } catch (e) {
+    console.error("Erreur de recherche", e);
   }
 }
 
-// Récupération des vraies données du film pour le résumé arrière
 async function fetchFullDetails(imdbID) {
-  const res = await fetch(`https://www.omdbapi.com/?i=${imdbID}&plot=full&apikey=${apiKey}`);
-  const detail = await res.json();
-  
-  const cleanMovie = {
-    Title: detail.Title,
-    Poster: getHDPoster(detail.Poster),
-    Plot: detail.Plot !== "N/A" ? detail.Plot : "Aucun synopsis disponible pour ce titre.",
-    Year: detail.Year,
-    Genre: detail.Genre,
-    Director: detail.Director,
-    Actors: detail.Actors,
-    watched: false
-  };
+  try {
+    const res = await fetch(`https://www.omdbapi.com/?i=${imdbID}&plot=full&apikey=${apiKey}`);
+    const detail = await res.json();
+    
+    const cleanMovie = {
+      Title: detail.Title,
+      Poster: cleanPosterURL(detail.Poster),
+      Plot: detail.Plot !== "N/A" ? detail.Plot : "Aucun synopsis officiel disponible pour cette édition.",
+      Year: detail.Released !== "N/A" ? detail.Released : detail.Year,
+      Genre: detail.Genre,
+      Director: detail.Director,
+      Actors: detail.Actors,
+      Rating: detail.imdbRating !== "N/A" ? detail.imdbRating : "N/A",
+      watched: false
+    };
 
-  movies.push(cleanMovie);
-  currentIndex = movies.length - 1;
-  save();
-  document.getElementById("results").innerHTML = "";
-  document.getElementById("title").value = "";
-  render();
+    movies.push(cleanMovie);
+    currentIndex = movies.length - 1;
+    save();
+    
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("title").value = "";
+    render();
+  } catch (e) {
+    console.error("Erreur lors de la récupération des détails", e);
+  }
+}
+
+// EXTRACTION MAGIQUE DE LA COULEUR MAJEURE (Via Canvas)
+function applyDominantColor(imageUrl) {
+  if (!imageUrl) return;
+  
+  const img = new Image();
+  img.crossOrigin = "Anonymous";
+  img.src = imageUrl;
+  
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 10;
+    canvas.height = 10;
+    
+    ctx.drawImage(img, 0, 0, 10, 10);
+    const data = ctx.getImageData(0, 0, 10, 10).data;
+    
+    let r = 0, g = 0, b = 0, count = 0;
+    // On fait la moyenne des pixels non-noirs pour choper la teinte vive
+    for (let i = 0; i < data.length; i += 4) {
+      if(data[i] > 30 || data[i+1] > 30 || data[i+2] > 30) {
+        r += data[i];
+        g += data[i+1];
+        b += data[i+2];
+        count++;
+      }
+    }
+    
+    if (count > 0) {
+      r = Math.floor(r / count);
+      g = Math.floor(g / count);
+      b = Math.floor(b / count);
+      // Applique un dégradé radial élégant centré derrière le boîtier
+      document.body.style.background = `radial-gradient(circle, rgba(${r},${g},${b},0.35) 0%, rgba(8,8,8,1) 85%)`;
+    } else {
+      document.body.style.background = "#080808";
+    }
+  };
+  
+  img.onerror = function() {
+    document.body.style.background = "#080808";
+  };
 }
 
 function render(){
@@ -358,10 +468,17 @@ function render(){
   titleDiv.innerText = "";
   statusDiv.innerHTML = "";
 
-  if(!movies.length) return;
+  if(!movies.length) {
+    document.body.style.background = "#080808";
+    return;
+  }
 
-  titleDiv.innerText = movies[currentIndex].Title;
-  statusDiv.innerHTML = `<div class="${movies[currentIndex].watched ? 'watched' : 'not-watched'}">${movies[currentIndex].watched ? 'VU (Tap pour changer)' : 'À VOIR (Tap pour changer)'}</div>`;
+  const currentMovie = movies[currentIndex];
+  titleDiv.innerText = currentMovie.Title;
+  statusDiv.innerHTML = `<div class="${currentMovie.watched ? 'watched' : 'not-watched'}">${currentMovie.watched ? 'VU' : 'À VOIR'}</div>`;
+
+  // Change l'ambiance lumineuse du fond en fonction du film en cours
+  applyDominantColor(currentMovie.Poster);
 
   const prevIndex = (currentIndex - 1 + movies.length) % movies.length;
   const nextIndex = (currentIndex + 1) % movies.length;
@@ -376,21 +493,23 @@ function render(){
       else if (index === prevIndex && movies.length > 1) container.classList.add("prev-slide");
       else if (index === nextIndex && movies.length > 1) container.classList.add("next-slide");
 
-      // Injection des vraies métadonnées dynamiques à l'arrière sans flou
       container.innerHTML = `
         <div class="dvd-box">
           <div class="dvd-face dvd-front">
-            <img src="${movie.Poster}" alt="Front">
+            <img src="${movie.Poster}" alt="Front" crossorigin="anonymous">
           </div>
           <div class="dvd-face dvd-back">
-            <div class="dvd-back-header">${movie.Year} • ${movie.Genre.split(',')[0]}</div>
-            <div class="dvd-back-body">${movie.Plot.substring(0, 180)}...</div>
+            <div class="dvd-back-header">
+              <span>Sortie : ${movie.Year.split(' ')[0]}</span>
+              <span class="dvd-rating">★ ${movie.Rating}/10</span>
+            </div>
+            <div class="dvd-back-body">${movie.Plot}</div>
             <div class="dvd-back-meta">
-              <strong>Réal :</strong> ${movie.Director}<br>
-              <strong>Avec :</strong> ${movie.Actors.substring(0, 45)}...
+              <strong>Réalisateur :</strong> ${movie.Director}<br>
+              <strong>Acteurs :</strong> ${movie.Actors}
             </div>
             <div class="dvd-back-footer">
-              DOLBY DIGITAL • HIGH DEFINITION • PAL REGION 2
+              DOLBY DIGITAL • INTERACTIVE MENU • REGION 2
             </div>
           </div>
           <div class="dvd-face dvd-spine-left">
@@ -405,7 +524,7 @@ function render(){
   });
 }
 
-// GESTION DU SWIPE / DRAG (Souris et Doigts)
+// NAVIGATION GESTUELLE PAR BALAYAGE (SWIPE / DRAG)
 const viewerZone = document.getElementById("viewer");
 
 viewerZone.addEventListener("touchstart", e => { touchStartX = e.touches[0].clientX; }, {passive: true});
@@ -415,12 +534,9 @@ viewerZone.addEventListener("mousedown", e => { touchStartX = e.clientX; });
 viewerZone.addEventListener("mouseup", e => { touchEndX = e.clientX; handleSwipe(); });
 
 function handleSwipe() {
-  const swipeThreshold = 60; // Sensibilité du glissement
-  if (touchStartX - touchEndX > swipeThreshold) {
-    next();
-  } else if (touchEndX - touchStartX > swipeThreshold) {
-    prev();
-  }
+  const swipeSensitivity = 50;
+  if (touchStartX - touchEndX > swipeSensitivity) next();
+  if (touchEndX - touchStartX > swipeSensitivity) prev();
 }
 
 function toggleWatched(){ if(!movies.length) return; movies[currentIndex].watched=!movies[currentIndex].watched; save(); render(); }
